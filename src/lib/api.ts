@@ -12,6 +12,7 @@ declare global {
     interface Window {
         _env_?: {
             BACKEND_URL?: string;
+            API_KEY?: string;
         };
     }
 }
@@ -28,9 +29,10 @@ client.interceptors.request.use((config) => {
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
-    // Add X-API-KEY header if set in environment
-    if (import.meta.env.VITE_API_KEY) {
-        config.headers['X-API-KEY'] = import.meta.env.VITE_API_KEY;
+    // Add X-API-KEY header if set in environment (prefer runtime config over build-time)
+    const apiKey = window._env_?.API_KEY || import.meta.env.VITE_API_KEY;
+    if (apiKey) {
+        config.headers['X-API-KEY'] = apiKey;
     }
     return config;
 });
