@@ -1,11 +1,11 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/gitamix-repo/gitamix-frontend:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/gitamix-frontend/gitamix-frontend:$COMMIT_SHA', '.']
 
   # Push the container image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/gitamix-repo/gitamix-frontend:$COMMIT_SHA']
+    args: ['push', 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/gitamix-frontend/gitamix-frontend:$COMMIT_SHA']
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -15,13 +15,13 @@ steps:
       - 'deploy'
       - 'gitamix-frontend'
       - '--image'
-      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/gitamix-repo/gitamix-frontend:$COMMIT_SHA'
+      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/gitamix-frontend/gitamix-frontend:$COMMIT_SHA'
       - '--region'
       - 'asia-southeast1'
       - '--allow-unauthenticated'
       - '--port'
       - '8080'
 images:
-  - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/gitamix-repo/gitamix-frontend:$COMMIT_SHA'
+  - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/gitamix-frontend/gitamix-frontend:$COMMIT_SHA'
 options:
     logging: CLOUD_LOGGING_ONLY

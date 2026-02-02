@@ -8,7 +8,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: asia-southeast1
-  REPO_NAME: gitamix-repo
+  REPO_NAME: gitamix-frontend
   IMAGE_NAME: gitamix-frontend
   SERVICE_NAME: gitamix-frontend
 
@@ -49,3 +49,5 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           flags: '--allow-unauthenticated'
+          env_vars: |
+            BACKEND_URL=${{ secrets.BACKEND_URL }}
