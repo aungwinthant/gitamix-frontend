@@ -23,6 +23,8 @@ export const MixerPage = () => {
         queryKey: ['jobResult', jobId],
         queryFn: () => api.getJobResult(jobId!),
         enabled: !!jobId && isAuthenticated,
+        staleTime: Infinity, // Prevent refetching when page becomes active
+        refetchOnWindowFocus: false, // Disable refetch on window focus
     });
 
     if (isAuthLoading || isLoading) {
@@ -65,7 +67,7 @@ export const MixerPage = () => {
             <Header showNewUploadButton={true} onNewUpload={() => navigate('/')} />
             <main className="flex-1 flex flex-col items-center justify-center">
                 <div className="container mx-auto px-4 py-8">
-                    <div className="mb-8 flex items-center gap-4">
+                    <div className="mb-8 flex items-center justify-between">
                         <button
                             onClick={() => navigate('/library')}
                             className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1"
@@ -73,6 +75,17 @@ export const MixerPage = () => {
                             ← Back to Library
                         </button>
                     </div>
+
+                    {/* Song Title */}
+                    <div className="mb-6 text-center">
+                        <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
+                            {result.metadata?.title || 'Untitled Track'}
+                        </h1>
+                        {result.metadata?.artist && (
+                            <p className="text-gray-400 text-lg">{result.metadata.artist}</p>
+                        )}
+                    </div>
+
                     <Mixer stems={result.stems} onReset={() => navigate('/')} />
                 </div>
             </main>
