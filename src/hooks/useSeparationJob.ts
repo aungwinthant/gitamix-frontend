@@ -57,12 +57,24 @@ export const useSeparationJob = () => {
         // optionally clear React Query cache for this job if we want a fresh start
     }, [uploadMutation, handleSetJobId]);
 
+    // Determine effective status: if we have a jobId but no status data yet, show 'pending' not 'idle'
+    const effectiveStatus = (() => {
+        if (statusQuery.data?.status) {
+            return statusQuery.data.status;
+        }
+        // If we have a jobId but status hasn't loaded yet (or is refetching), show pending
+        if (jobId) {
+            return 'pending';
+        }
+        return 'idle';
+    })();
+
     return {
         jobId,
         upload: uploadMutation.mutate,
         isUploading: uploadMutation.isPending,
         uploadError: uploadMutation.error,
-        status: statusQuery.data?.status || 'idle',
+        status: effectiveStatus,
         statusError: statusQuery.error,
         progress: statusQuery.data?.status === 'separating' ? 50 : 0, // Mock progress if backend doesn't provide %
         result: resultQuery.data,

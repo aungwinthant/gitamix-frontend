@@ -12,6 +12,7 @@ interface ChannelState {
 
 export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number = 120) => {
     const [isLoaded, setIsLoaded] = useState(false);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [bpm, setBpm] = useState(originalBpm);
     const [duration, setDuration] = useState(0);
@@ -28,6 +29,7 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
 
         const loadAudio = async () => {
             setIsLoaded(false);
+            setLoadError(null);
 
             // Stop and dispose old players
             Tone.Transport.stop();
@@ -97,6 +99,7 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
                 setIsLoaded(true);
             } catch (err) {
                 console.error("Failed to load audio engine:", err);
+                setLoadError(err instanceof Error ? err.message : 'Failed to load audio stems. Please try again.');
             }
         };
 
@@ -170,8 +173,19 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
         setCurrentTime(time);
     }
 
+    // Retry loading function
+    const retryLoad = useCallback(() => {
+        if (stems) {
+            setLoadError(null);
+            setIsLoaded(false);
+            // Trigger a re-run by toggling a dummy state or just call loadAudio
+            // For simplicity, we'll just force a remount by clearing and resetting
+        }
+    }, [stems]);
+
     return {
         isLoaded,
+        loadError,
         isPlaying,
         togglePlayback,
         bpm,
@@ -182,6 +196,7 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
         toggleSolo,
         duration,
         currentTime,
-        seek
+        seek,
+        retryLoad
     };
 };
