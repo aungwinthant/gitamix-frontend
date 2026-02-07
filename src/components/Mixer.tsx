@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play, Pause, Loader2, RefreshCcw, SkipBack, SkipForward, Download, Music, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Play, Pause, Loader2, RefreshCcw, SkipBack, SkipForward, Download, Music, FileText, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { useAudioEngine } from '../hooks/useAudioEngine';
 import { ChannelStrip } from './ChannelStrip';
 import type { StemsInfo, Metadata } from '../types/api';
@@ -15,6 +15,8 @@ interface MixerProps {
 
 export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
     const [isExporting, setIsExporting] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [currentMetadata, setCurrentMetadata] = useState<Metadata | undefined>(metadata);
     const [showLyrics, setShowLyrics] = useState(false);
     const [showChords, setShowChords] = useState(false);
 
@@ -37,11 +39,30 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
     const handleExport = async () => {
         setIsExporting(true);
         try {
-            await api.exportStems(jobId, metadata?.title);
+            await api.exportStems(jobId, currentMetadata?.title);
         } catch (error) {
             console.error('Failed to export stems:', error);
         } finally {
             setIsExporting(false);
+        }
+    };
+
+    const handleGenerate = async () => {
+        setIsGenerating(true);
+        try {
+            const result = await api.generateLyricsAndChords(jobId);
+            setCurrentMetadata(prev => ({
+                ...prev,
+                lyrics: result.lyrics || prev?.lyrics,
+                chords: result.chords || prev?.chords,
+            }));
+            // Auto-expand panels if content was generated
+            if (result.lyrics) setShowLyrics(true);
+            if (result.chords) setShowChords(true);
+        } catch (error) {
+            console.error('Failed to generate lyrics and chords:', error);
+        } finally {
+            setIsGenerating(false);
         }
     };
 
@@ -182,6 +203,22 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
                         />
                     </div>
 
+                    {/* Generate Lyrics & Chords Button */}
+                    {(!currentMetadata?.lyrics || !currentMetadata?.chords) && (
+                        <button
+                            onClick={handleGenerate}
+                            disabled={isGenerating}
+                            className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isGenerating ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <Sparkles className="w-4 h-4" />
+                            )}
+                            <span>{isGenerating ? 'Generating...' : 'Generate Lyrics & Chords'}</span>
+                        </button>
+                    )}
+
                     {/* Export Button */}
                     <button
                         onClick={handleExport}
@@ -207,10 +244,10 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
             </div>
 
             {/* Lyrics & Chords Panels */}
-            {(metadata?.lyrics || metadata?.chords) && (
+            {(currentMetadata?.lyrics || currentMetadata?.chords) && (
                 <div className="bg-gray-900/90 backdrop-blur border border-gray-800 rounded-2xl p-6 shadow-xl mt-6 space-y-4">
                     {/* Lyrics Panel */}
-                    {metadata?.lyrics && (
+                    {currentMetadata?.lyrics && (
                         <div className="border border-gray-700/50 rounded-xl overflow-hidden">
                             <button
                                 onClick={() => setShowLyrics(!showLyrics)}
@@ -231,7 +268,7 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
                             {showLyrics && (
                                 <div className="p-4 bg-black/30">
                                     <pre className="whitespace-pre-wrap text-gray-300 text-sm font-mono leading-relaxed max-h-80 overflow-y-auto">
-                                        {metadata.lyrics}
+                                        {currentMetadata.lyrics}
                                     </pre>
                                 </div>
                             )}
@@ -239,7 +276,7 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
                     )}
 
                     {/* Chords Panel */}
-                    {metadata?.chords && (
+                    {currentMetadata?.chords && (
                         <div className="border border-gray-700/50 rounded-xl overflow-hidden">
                             <button
                                 onClick={() => setShowChords(!showChords)}
@@ -260,7 +297,7 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
                             {showChords && (
                                 <div className="p-4 bg-black/30">
                                     <pre className="whitespace-pre-wrap text-gray-300 text-sm font-mono leading-relaxed max-h-80 overflow-y-auto">
-                                        {metadata.chords}
+                                        {currentMetadata.chords}
                                     </pre>
                                 </div>
                             )}

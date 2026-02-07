@@ -99,15 +99,20 @@ export const api = {
     },
 
     resumeJob: async (jobId: string): Promise<void> => {
-        await client.post(`/jobs/${jobId}/resume`);
+        await client.patch(`/jobs/${jobId}/resume`);
     },
 
     pauseJob: async (jobId: string): Promise<void> => {
-        await client.post(`/jobs/${jobId}/pause`);
+        await client.patch(`/jobs/${jobId}/pause`);
     },
 
     deleteJob: async (jobId: string): Promise<void> => {
         await client.delete(`/jobs/${jobId}`);
+    },
+
+    generateLyricsAndChords: async (jobId: string): Promise<{ lyrics?: string; chords?: string }> => {
+        const response = await client.post<{ lyrics?: string; chords?: string }>(`/jobs/${jobId}/generate`);
+        return response.data;
     },
 
     exportStems: async (jobId: string, filename?: string): Promise<void> => {
