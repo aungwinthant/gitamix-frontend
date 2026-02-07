@@ -110,10 +110,7 @@ export const api = {
         await client.delete(`/jobs/${jobId}`);
     },
 
-    generateLyricsAndChords: async (jobId: string): Promise<{ lyrics?: string; chords?: string }> => {
-        const response = await client.post<{ lyrics?: string; chords?: string }>(`/jobs/${jobId}/generate`);
-        return response.data;
-    },
+
 
     exportStems: async (jobId: string, filename?: string): Promise<void> => {
         const response = await client.get(`/jobs/${jobId}/export`, {
