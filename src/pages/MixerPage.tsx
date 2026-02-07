@@ -86,7 +86,7 @@ export const MixerPage = () => {
                         )}
                     </div>
 
-                    <Mixer stems={result.stems} onReset={() => navigate('/')} />
+                    <Mixer stems={result.stems} jobId={jobId!} metadata={result.metadata} onReset={() => navigate('/')} />
                 </div>
             </main>
         </>

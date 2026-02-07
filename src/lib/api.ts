@@ -97,4 +97,18 @@ export const api = {
         });
         return response.data;
     },
+
+    exportStems: async (jobId: string, filename?: string): Promise<void> => {
+        const response = await client.get(`/jobs/${jobId}/export`, {
+            responseType: 'blob'
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename ? `${filename}-stems.zip` : `stems-${jobId}.zip`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    },
 };

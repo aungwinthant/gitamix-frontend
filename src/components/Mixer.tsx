@@ -1,15 +1,23 @@
-import { Play, Pause, Loader2, RefreshCcw, SkipBack, SkipForward } from 'lucide-react';
+import { useState } from 'react';
+import { Play, Pause, Loader2, RefreshCcw, SkipBack, SkipForward, Download, Music, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAudioEngine } from '../hooks/useAudioEngine';
 import { ChannelStrip } from './ChannelStrip';
-import type { StemsInfo } from '../types/api';
+import type { StemsInfo, Metadata } from '../types/api';
 import { twMerge } from 'tailwind-merge';
+import { api } from '../lib/api';
 
 interface MixerProps {
     stems: StemsInfo;
+    jobId: string;
+    metadata?: Metadata;
     onReset: () => void;
 }
 
-export const Mixer = ({ stems, onReset }: MixerProps) => {
+export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
+    const [isExporting, setIsExporting] = useState(false);
+    const [showLyrics, setShowLyrics] = useState(false);
+    const [showChords, setShowChords] = useState(false);
+
     const {
         isLoaded,
         isPlaying,
@@ -24,6 +32,17 @@ export const Mixer = ({ stems, onReset }: MixerProps) => {
         currentTime,
         seek
     } = useAudioEngine(stems, 120);
+
+    const handleExport = async () => {
+        setIsExporting(true);
+        try {
+            await api.exportStems(jobId, metadata?.title);
+        } catch (error) {
+            console.error('Failed to export stems:', error);
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -135,6 +154,20 @@ export const Mixer = ({ stems, onReset }: MixerProps) => {
                         />
                     </div>
 
+                    {/* Export Button */}
+                    <button
+                        onClick={handleExport}
+                        disabled={isExporting}
+                        className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isExporting ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                            <Download className="w-4 h-4" />
+                        )}
+                        <span>{isExporting ? 'Exporting...' : 'Export Stems'}</span>
+                    </button>
+
                     <button
                         onClick={onReset}
                         className="text-xs text-gray-500 hover:text-white flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
@@ -144,6 +177,69 @@ export const Mixer = ({ stems, onReset }: MixerProps) => {
                     </button>
                 </div>
             </div>
+
+            {/* Lyrics & Chords Panels */}
+            {(metadata?.lyrics || metadata?.chords) && (
+                <div className="bg-gray-900/90 backdrop-blur border border-gray-800 rounded-2xl p-6 shadow-xl mt-6 space-y-4">
+                    {/* Lyrics Panel */}
+                    {metadata?.lyrics && (
+                        <div className="border border-gray-700/50 rounded-xl overflow-hidden">
+                            <button
+                                onClick={() => setShowLyrics(!showLyrics)}
+                                className="w-full flex items-center justify-between p-4 bg-gray-800/50 hover:bg-gray-800 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                                        <FileText className="w-4 h-4 text-purple-400" />
+                                    </div>
+                                    <span className="font-medium text-white">Lyrics</span>
+                                </div>
+                                {showLyrics ? (
+                                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                                ) : (
+                                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                                )}
+                            </button>
+                            {showLyrics && (
+                                <div className="p-4 bg-black/30">
+                                    <pre className="whitespace-pre-wrap text-gray-300 text-sm font-mono leading-relaxed max-h-80 overflow-y-auto">
+                                        {metadata.lyrics}
+                                    </pre>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Chords Panel */}
+                    {metadata?.chords && (
+                        <div className="border border-gray-700/50 rounded-xl overflow-hidden">
+                            <button
+                                onClick={() => setShowChords(!showChords)}
+                                className="w-full flex items-center justify-between p-4 bg-gray-800/50 hover:bg-gray-800 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                                        <Music className="w-4 h-4 text-amber-400" />
+                                    </div>
+                                    <span className="font-medium text-white">Chord Progression</span>
+                                </div>
+                                {showChords ? (
+                                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                                ) : (
+                                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                                )}
+                            </button>
+                            {showChords && (
+                                <div className="p-4 bg-black/30">
+                                    <pre className="whitespace-pre-wrap text-gray-300 text-sm font-mono leading-relaxed max-h-80 overflow-y-auto">
+                                        {metadata.chords}
+                                    </pre>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
 
         </div>
     );

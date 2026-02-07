@@ -20,6 +20,7 @@ function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const {
+    jobId,
     upload,
     isUploading,
     uploadError,
@@ -64,7 +65,7 @@ function Home() {
         )}
         {showProcessing && <ProcessingView status={status === 'idle' ? 'uploading' : status as import('./types/api').JobStatus} progress={progress} error={statusError as Error || uploadError} />}
         {showAuthGate && <AuthGate />}
-        {showMixer && <Mixer stems={result.stems} onReset={reset} />}
+        {showMixer && <Mixer stems={result.stems} jobId={jobId!} metadata={result.metadata} onReset={reset} />}
 
         <LoginModal
           isOpen={showLoginModal}

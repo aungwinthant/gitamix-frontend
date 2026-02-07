@@ -29,6 +29,8 @@ export interface Metadata {
     title?: string;
     artist?: string;
     duration?: number;
+    lyrics?: string;
+    chords?: string;
 }
 
 export interface ResultResponse {
