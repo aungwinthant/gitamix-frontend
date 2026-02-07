@@ -7,17 +7,9 @@ import type {
     AuthResponse
 } from '../types/api';
 
-// Basic type for runtime config
-declare global {
-    interface Window {
-        _env_?: {
-            BACKEND_URL?: string;
-            API_KEY?: string;
-        };
-    }
-}
 
-const API_BASE_URL = window._env_?.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080/api/v1';
+
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080/api/v1';
 
 const client = axios.create({
     baseURL: API_BASE_URL,
@@ -29,8 +21,8 @@ client.interceptors.request.use((config) => {
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
-    // Add X-API-KEY header if set in environment (prefer runtime config over build-time)
-    const apiKey = window._env_?.API_KEY || import.meta.env.VITE_API_KEY;
+    // Add X-API-KEY header if set in environment
+    const apiKey = import.meta.env.VITE_API_KEY;
     if (apiKey) {
         config.headers['X-API-KEY'] = apiKey;
     }
@@ -96,6 +88,18 @@ export const api = {
             params: { limit, offset }
         });
         return response.data;
+    },
+
+    resumeJob: async (jobId: string): Promise<void> => {
+        await client.post(`/jobs/${jobId}/resume`);
+    },
+
+    pauseJob: async (jobId: string): Promise<void> => {
+        await client.post(`/jobs/${jobId}/pause`);
+    },
+
+    deleteJob: async (jobId: string): Promise<void> => {
+        await client.delete(`/jobs/${jobId}`);
     },
 
     exportStems: async (jobId: string, filename?: string): Promise<void> => {
