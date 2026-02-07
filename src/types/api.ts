@@ -1,4 +1,4 @@
-export type JobStatus = 'pending' | 'uploading' | 'separating' | 'completed' | 'failed';
+export type JobStatus = 'pending' | 'uploading' | 'separating' | 'completed' | 'failed' | 'paused';
 
 export interface ProcessResponse {
     job_id: string;
