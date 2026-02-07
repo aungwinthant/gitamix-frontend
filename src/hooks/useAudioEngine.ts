@@ -27,6 +27,8 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
     useEffect(() => {
         if (!stems) return;
 
+        let isCancelled = false;
+
         const loadAudio = async () => {
             setIsLoaded(false);
             setLoadError(null);
@@ -54,6 +56,8 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
                 const entries = Object.entries(stems).filter(([_, url]) => !!url);
 
                 for (const [name, url] of entries) {
+                    if (isCancelled) return;
+
                     // Channel setup
                     const channel = new Tone.Channel({ volume: 0, pan: 0 }).toDestination();
                     channelNodes.current[name] = channel;
@@ -82,7 +86,15 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
                     };
                 }
 
-                await Tone.loaded();
+                // Wait for all buffers with timeout
+                const loadPromise = Tone.loaded();
+                const timeoutPromise = new Promise<never>((_, reject) =>
+                    setTimeout(() => reject(new Error('Loading timed out after 60 seconds')), 60000)
+                );
+
+                await Promise.race([loadPromise, timeoutPromise]);
+
+                if (isCancelled) return;
 
                 // Set duration from one of the players
                 if (entries.length > 0) {
@@ -98,6 +110,7 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
                 setChannels(newChannels);
                 setIsLoaded(true);
             } catch (err) {
+                if (isCancelled) return;
                 console.error("Failed to load audio engine:", err);
                 setLoadError(err instanceof Error ? err.message : 'Failed to load audio stems. Please try again.');
             }
@@ -106,6 +119,7 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
         loadAudio();
 
         return () => {
+            isCancelled = true;
             Object.values(players.current).forEach(p => p.dispose());
             Object.values(channelNodes.current).forEach(c => c.dispose());
         };
