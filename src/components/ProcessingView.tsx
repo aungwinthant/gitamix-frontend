@@ -60,7 +60,13 @@ export const ProcessingView = ({ status, progress, error }: ProcessingViewProps)
                     {steps.map((step, index) => {
                         const isCurrent = step.id === status;
                         const isCompleted = index < currentStepIndex || status === 'completed';
-                        const Icon = step.icon;
+                        const isPending = !isCurrent && !isCompleted;
+
+                        // Determine which icon to show:
+                        // - Completed: CheckCircle2
+                        // - Current: Loader2 (spinning)
+                        // - Pending: Original step icon
+                        const IconToShow = isCompleted ? CheckCircle2 : (isCurrent ? Loader2 : step.icon);
 
                         return (
                             <div
@@ -68,22 +74,24 @@ export const ProcessingView = ({ status, progress, error }: ProcessingViewProps)
                                 className={twMerge(
                                     "flex items-center gap-4 p-4 rounded-xl transition-all duration-300",
                                     isCurrent ? "bg-cyan-500/10 border border-cyan-500/20" : "bg-transparent",
-                                    isCompleted ? "opacity-50" : "opacity-100"
+                                    isPending && "opacity-50"
                                 )}
                             >
                                 <div className={twMerge(
                                     "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
                                     isCurrent ? "bg-cyan-500 text-white" : "bg-gray-800 text-gray-400",
-                                    isCompleted && "bg-cyan-500/20 text-cyan-400"
+                                    isCompleted && "bg-green-500/20 text-green-400"
                                 )}>
-                                    <Icon className={twMerge("w-5 h-5", (isCurrent || step.id === 'uploading' || step.id === 'separating') && "animate-spin-slow", status === 'completed' && "animate-none")} />
+                                    <IconToShow className={twMerge("w-5 h-5", isCurrent && "animate-spin")} />
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className={twMerge("font-medium", isCurrent ? "text-cyan-400" : "text-gray-300")}>
-                                        {step.label}
+                                    <h4 className={twMerge(
+                                        "font-medium",
+                                        isCurrent ? "text-cyan-400" : isCompleted ? "text-green-400" : "text-gray-400"
+                                    )}>
+                                        {isCompleted && step.id !== 'completed' ? step.label.replace('...', '') + ' ✓' : step.label}
                                     </h4>
                                 </div>
-                                {isCompleted && <CheckCircle2 className="w-5 h-5 text-cyan-500" />}
                             </div>
                         )
                     })}
