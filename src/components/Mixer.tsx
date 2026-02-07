@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Play, Pause, Loader2, RefreshCcw, SkipBack, SkipForward, Download, Music, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { useAudioEngine } from '../hooks/useAudioEngine';
-import { ChannelStrip } from './ChannelStrip';
-import type { StemsInfo, Metadata } from '../types/api';
+import { WaveformTrack } from './WaveformTrack';
+import type { StemsInfo, Metadata, WaveformsInfo } from '../types/api';
 import { twMerge } from 'tailwind-merge';
 import { api } from '../lib/api';
 
@@ -10,10 +10,11 @@ interface MixerProps {
     stems: StemsInfo;
     jobId: string;
     metadata?: Metadata;
+    waveforms?: WaveformsInfo;
     onReset: () => void;
 }
 
-export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
+export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps) => {
     const [isExporting, setIsExporting] = useState(false);
 
 
@@ -103,15 +104,21 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
     return (
         <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-            {/* Stems Grid (Top) */}
-            <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-3xl p-8 mb-8 shadow-2xl relative overflow-hidden min-h-[400px]">
+            {/* Waveform Tracks */}
+            <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-3xl p-4 md:p-6 mb-8 shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none" />
 
-                <div className="flex flex-wrap justify-center gap-4 md:gap-6 relative z-10">
+                <div className="relative z-10 space-y-3">
                     {channelKeys.map((name) => (
-                        <ChannelStrip
+                        <WaveformTrack
                             key={name}
-                            {...channels[name]}
+                            name={name}
+                            waveformUrl={waveforms?.[name as keyof WaveformsInfo]}
+                            volume={channels[name]?.volume ?? 0}
+                            muted={channels[name]?.muted ?? false}
+                            soloed={channels[name]?.soloed ?? false}
+                            currentTime={currentTime}
+                            duration={duration}
                             onVolumeChange={(val) => setChannelVolume(name, val)}
                             onMuteToggle={() => toggleMute(name)}
                             onSoloToggle={() => toggleSolo(name)}
