@@ -65,7 +65,7 @@ function Home() {
         )}
         {showProcessing && <ProcessingView status={status === 'idle' ? 'uploading' : status as import('./types/api').JobStatus} progress={progress} error={statusError as Error || uploadError} />}
         {showAuthGate && <AuthGate />}
-        {showMixer && <Mixer stems={result.stems} jobId={jobId!} metadata={result.metadata} onReset={reset} />}
+        {showMixer && <Mixer stems={result.stems} jobId={jobId!} metadata={result.metadata} waveforms={result.waveforms} onReset={reset} />}
 
         <LoginModal
           isOpen={showLoginModal}

@@ -33,11 +33,21 @@ export interface Metadata {
     chords?: string;
 }
 
+export interface WaveformsInfo {
+    vocals?: string;
+    drums?: string;
+    bass?: string;
+    guitar?: string;
+    piano?: string;
+    other?: string;
+}
+
 export interface ResultResponse {
     job_id: string;
     status: JobStatus;
     stems: StemsInfo;
     metadata: Metadata;
+    waveforms?: WaveformsInfo;
 }
 
 export interface User {
