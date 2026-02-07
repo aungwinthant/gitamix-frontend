@@ -9,16 +9,7 @@ import type {
 
 
 
-// Basic type for runtime config
-declare global {
-    interface Window {
-        _env_?: {
-            BACKEND_URL?: string;
-        };
-    }
-}
-
-const API_BASE_URL = window._env_?.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080/api/v1';
 
 const client = axios.create({
     baseURL: API_BASE_URL,

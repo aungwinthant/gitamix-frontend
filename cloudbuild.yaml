@@ -21,6 +21,8 @@ steps:
       - '--allow-unauthenticated'
       - '--port'
       - '8080'
+      - '--set-secrets=API_KEY=gitamix-api-key:latest'
+      - '--set-env-vars=BACKEND_URL=https://gitamix-engine-120442749114.asia-southeast1.run.app/api/v1'
 images:
   - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/gitamix-frontend/gitamix-frontend:$COMMIT_SHA'
 options:
