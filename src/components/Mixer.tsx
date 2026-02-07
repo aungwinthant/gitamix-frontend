@@ -158,7 +158,7 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
                 </div>
 
                 {/* Controls Row */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex flex-col md:flex-row flex-wrap items-center justify-center md:justify-between gap-4 md:gap-6">
 
                     {/* Transport */}
                     <div className="flex items-center gap-6">
@@ -208,7 +208,7 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating}
-                            className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full sm:w-auto text-xs text-purple-400 hover:text-purple-300 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isGenerating ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -223,7 +223,7 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
                     <button
                         onClick={handleExport}
                         disabled={isExporting}
-                        className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto text-xs text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isExporting ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -235,7 +235,7 @@ export const Mixer = ({ stems, jobId, metadata, onReset }: MixerProps) => {
 
                     <button
                         onClick={onReset}
-                        className="text-xs text-gray-500 hover:text-white flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
+                        className="w-full sm:w-auto text-xs text-gray-500 hover:text-white flex items-center justify-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
                     >
                         <RefreshCcw className="w-4 h-4" />
                         <span>Reset Project</span>
