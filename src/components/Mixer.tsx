@@ -55,7 +55,12 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
         // Pre-fetch stems as blobs to handle authentication
         const loadStemsAndInit = async () => {
             try {
-                const trackPromises = Object.entries(stems).map(async ([name, url], index) => {
+                // Filter out guitar and piano
+                const filteredStems = Object.entries(stems).filter(([name]) =>
+                    !['guitar', 'piano'].includes(name)
+                );
+
+                const trackPromises = filteredStems.map(async ([name, url], index) => {
                     // Use the api utility to fetch with auth headers if needed
                     const blobUrl = await import('../lib/api').then(m => m.fetchStemAsBlob(url));
                     return {
