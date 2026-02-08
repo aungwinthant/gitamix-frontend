@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Play, Pause, Loader2, RefreshCcw, SkipBack, SkipForward, Download, Music } from 'lucide-react';
 import { useAudioEngine } from '../hooks/useAudioEngine';
 import { WaveformTrack } from './WaveformTrack';
@@ -20,7 +20,9 @@ interface MixerProps {
 export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps) => {
     const [isExporting, setIsExporting] = useState(false);
     const [showPremiumModal, setShowPremiumModal] = useState(false);
+    const [zoom, setZoom] = useState(1);
     const { user } = useAuth();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const isPremium = user?.tier === 'pro';
 
@@ -39,6 +41,32 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
         currentTime,
         seek
     } = useAudioEngine(stems, 120);
+
+    // Auto-scroll logic
+    useEffect(() => {
+        if (!scrollContainerRef.current || !duration || duration === 0) return;
+
+        // If zooming, we might want to center the current playhead too
+        // Standard auto-scroll: Keep playhead centered
+        const percent = currentTime / duration;
+        const container = scrollContainerRef.current;
+        const totalWidth = container.scrollWidth;
+        const clientWidth = container.clientWidth;
+
+        // Calculate target scroll position to center the playhead
+        // The playhead is at `percent` of the total scrollable width (roughly, minus padding)
+        // Actually, the WaveformTrack is width 100% of container * zoom. 
+        // But the container has sticky (48px) + waveform. 
+        // Wait, the sticky part is INSIDE the scroll container.
+        // So the scrollWidth is accurate.
+
+        const targetScroll = (totalWidth * percent) - (clientWidth / 2);
+
+        // Use smooth scroll only if the jump is small (game loop style)
+        // But for frequent updates, direct assignment is better to avoid lag
+        container.scrollLeft = targetScroll;
+
+    }, [currentTime, duration, zoom]); // Run whenever time updates
 
     const handleExport = async () => {
         if (!isPremium) {
@@ -147,7 +175,10 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
             <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-3xl p-4 md:p-6 mb-8 shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none" />
 
-                <div className="relative z-10 space-y-3">
+                <div
+                    ref={scrollContainerRef}
+                    className="relative z-10 space-y-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]"
+                >
                     {channelKeys.map((name) => (
                         <WaveformTrack
                             key={name}
@@ -158,6 +189,7 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
                             soloed={channels[name]?.soloed ?? false}
                             currentTime={currentTime}
                             duration={duration}
+                            zoom={zoom}
                             onVolumeChange={(val) => setChannelVolume(name, val)}
                             onMuteToggle={() => toggleMute(name)}
                             onSoloToggle={() => toggleSolo(name)}
@@ -216,45 +248,66 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
                         </button>
                     </div>
 
-                    {/* BPM Control */}
-                    <div className="flex items-center gap-4 bg-black/30 p-3 rounded-xl border border-white/5">
-                        <div className="flex flex-col items-end min-w-[50px]">
-                            <span className="text-xl font-bold text-cyan-400 font-mono">{Math.round(bpm)}</span>
-                            <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">BPM</span>
+                    <div className="flex items-center gap-4">
+                        {/* BPM Control */}
+                        <div className="flex items-center gap-4 bg-black/30 p-3 rounded-xl border border-white/5">
+                            <div className="flex flex-col items-end min-w-[50px]">
+                                <span className="text-xl font-bold text-cyan-400 font-mono">{Math.round(bpm)}</span>
+                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">BPM</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="60"
+                                max="180"
+                                value={bpm}
+                                onChange={(e) => setBpm(parseFloat(e.target.value))}
+                                className="w-24 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-cyan-500 [&::-webkit-slider-thumb]:rounded-full transition-all"
+                            />
                         </div>
-                        <input
-                            type="range"
-                            min="60"
-                            max="180"
-                            value={bpm}
-                            onChange={(e) => setBpm(parseFloat(e.target.value))}
-                            className="w-32 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-cyan-500 [&::-webkit-slider-thumb]:rounded-full transition-all"
-                        />
+
+                        {/* Zoom Control */}
+                        <div className="flex items-center gap-3 bg-black/30 p-3 rounded-xl border border-white/5">
+                            <div className="flex flex-col items-end min-w-[40px]">
+                                <span className="text-sm font-bold text-violet-400 font-mono">{Math.round(zoom * 100)}%</span>
+                                <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold">Zoom</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="1"
+                                max="4"
+                                step="0.5"
+                                value={zoom}
+                                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                                className="w-20 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-violet-500 [&::-webkit-slider-thumb]:rounded-full transition-all"
+                            />
+                        </div>
                     </div>
 
 
 
                     {/* Export Button */}
-                    <button
-                        onClick={handleExport}
-                        disabled={isExporting}
-                        className="w-full sm:w-auto text-xs text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isExporting ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <Download className="w-4 h-4" />
-                        )}
-                        <span>{isExporting ? 'Exporting...' : 'Export Stems'}</span>
-                    </button>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <button
+                            onClick={handleExport}
+                            disabled={isExporting}
+                            className="flex-1 sm:flex-none text-xs text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <Download className="w-4 h-4" />
+                            )}
+                            <span>{isExporting ? 'Exporting...' : 'Export Stems'}</span>
+                        </button>
 
-                    <button
-                        onClick={onReset}
-                        className="w-full sm:w-auto text-xs text-gray-500 hover:text-white flex items-center justify-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
-                    >
-                        <RefreshCcw className="w-4 h-4" />
-                        <span>Reset Project</span>
-                    </button>
+                        <button
+                            onClick={onReset}
+                            className="flex-1 sm:flex-none text-xs text-gray-500 hover:text-white flex items-center justify-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
+                        >
+                            <RefreshCcw className="w-4 h-4" />
+                            <span>Reset</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
