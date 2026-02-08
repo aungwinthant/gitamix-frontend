@@ -59,35 +59,45 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
                 for (const [name, url] of entries) {
                     if (isCancelled) return;
 
-                    // Channel setup
-                    const channel = new Tone.Channel({ volume: 0, pan: 0 }).toDestination();
-                    channelNodes.current[name] = channel;
+                    try {
+                        // Channel setup
+                        const channel = new Tone.Channel({ volume: 0, pan: 0 }).toDestination();
+                        channelNodes.current[name] = channel;
 
-                    // Fetch audio through axios (with auth headers) and get blob URL
-                    const blobUrl = await fetchStemAsBlob(url);
+                        // Fetch audio through axios (with auth headers) and get blob URL
+                        const blobUrl = await fetchStemAsBlob(url);
 
-                    // Player setup (GrainPlayer for pitch-preserving stretch)
-                    const player = new Tone.GrainPlayer({
-                        url: blobUrl,
-                        loop: true,
-                        grainSize: 0.2,
-                        overlap: 0.1,
-                    }).connect(channel);
+                        // Player setup (GrainPlayer for pitch-preserving stretch)
+                        const player = new Tone.GrainPlayer({
+                            url: blobUrl,
+                            loop: true,
+                            grainSize: 0.2,
+                            overlap: 0.1,
+                        }).connect(channel);
 
-                    players.current[name] = player;
+                        players.current[name] = player;
 
-                    // Sync to Transport
-                    // We need to sync start, but GrainPlayer with Transport sync is tricky for stretching.
-                    // Better to just start them all at 0.
-                    player.sync().start(0);
+                        // Sync to Transport
+                        // We need to sync start, but GrainPlayer with Transport sync is tricky for stretching.
+                        // Better to just start them all at 0.
+                        player.sync().start(0);
 
-                    newChannels[name] = {
-                        name,
-                        volume: 0, // dB
-                        muted: false,
-                        soloed: false,
-                        pan: 0
-                    };
+                        newChannels[name] = {
+                            name,
+                            volume: 0, // dB
+                            muted: false,
+                            soloed: false,
+                            pan: 0
+                        };
+                    } catch (stemError) {
+                        // Log the error but continue loading other stems
+                        console.warn(`Failed to load stem "${name}":`, stemError);
+                        // Clean up the channel if it was created
+                        if (channelNodes.current[name]) {
+                            channelNodes.current[name].dispose();
+                            delete channelNodes.current[name];
+                        }
+                    }
                 }
 
                 // Wait for all buffers with timeout
@@ -100,11 +110,18 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
 
                 if (isCancelled) return;
 
-                // Set duration from one of the players
-                if (entries.length > 0) {
-                    const firstPlayerToCheck = players.current[entries[0][0]];
-                    if (firstPlayerToCheck && firstPlayerToCheck.buffer) {
-                        setDuration(firstPlayerToCheck.buffer.duration);
+                // Check if at least one stem was loaded successfully
+                const loadedStemCount = Object.keys(newChannels).length;
+                if (loadedStemCount === 0) {
+                    throw new Error('No stems could be loaded');
+                }
+
+                // Set duration from any available player
+                const availablePlayerNames = Object.keys(players.current);
+                if (availablePlayerNames.length > 0) {
+                    const firstPlayer = players.current[availablePlayerNames[0]];
+                    if (firstPlayer && firstPlayer.buffer) {
+                        setDuration(firstPlayer.buffer.duration);
                     }
                 }
 
