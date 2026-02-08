@@ -68,7 +68,7 @@ export const WaveformTrack = ({
     soloed,
     currentTime,
     duration,
-    zoom = 1,
+
     onVolumeChange,
     onMuteToggle,
     onSoloToggle,
