@@ -11,20 +11,51 @@ interface WaveformTrackProps {
     soloed: boolean;
     currentTime: number;
     duration: number;
+    zoom?: number;
     onVolumeChange: (value: number) => void;
     onMuteToggle: () => void;
     onSoloToggle: () => void;
 }
 
-// Stem color palette with vibrant colors
-const stemColors: Record<string, { bg: string; accent: string; text: string; gradient: string }> = {
-    vocals: { bg: 'bg-purple-500/10', accent: 'bg-purple-500', text: 'text-purple-400', gradient: 'from-purple-600 via-purple-400 to-purple-600' },
-    drums: { bg: 'bg-orange-500/10', accent: 'bg-orange-500', text: 'text-orange-400', gradient: 'from-orange-600 via-orange-400 to-orange-600' },
-    bass: { bg: 'bg-cyan-500/10', accent: 'bg-cyan-500', text: 'text-cyan-400', gradient: 'from-cyan-600 via-cyan-400 to-cyan-600' },
-    other: { bg: 'bg-emerald-500/10', accent: 'bg-emerald-500', text: 'text-emerald-400', gradient: 'from-emerald-600 via-emerald-400 to-emerald-600' },
-    // Fallbacks just in case
-    guitar: { bg: 'bg-yellow-500/10', accent: 'bg-yellow-500', text: 'text-yellow-400', gradient: 'from-yellow-600 via-yellow-400 to-yellow-600' },
-    piano: { bg: 'bg-pink-500/10', accent: 'bg-pink-500', text: 'text-pink-400', gradient: 'from-pink-600 via-pink-400 to-pink-600' },
+// Stem color palette matching the user's reference
+const stemColors: Record<string, { bg: string; active: string; inactive: string; text: string }> = {
+    vocals: {
+        bg: 'bg-[#2D1B2E]',
+        active: 'bg-[#D94689]',
+        inactive: 'bg-[#683458]',
+        text: 'text-pink-400'
+    },
+    drums: {
+        bg: 'bg-[#2E241B]',
+        active: 'bg-[#D98C28]',
+        inactive: 'bg-[#6D4C25]',
+        text: 'text-orange-400'
+    },
+    bass: {
+        bg: 'bg-[#1B242E]',
+        active: 'bg-[#3E72A8]',
+        inactive: 'bg-[#2A425E]',
+        text: 'text-blue-400'
+    },
+    other: {
+        bg: 'bg-[#1B2D2E]',
+        active: 'bg-[#46D9C8]',
+        inactive: 'bg-[#2C6661]',
+        text: 'text-teal-400'
+    },
+    // Fallbacks
+    guitar: {
+        bg: 'bg-[#2E2B1B]',
+        active: 'bg-[#D9C428]',
+        inactive: 'bg-[#6D6325]',
+        text: 'text-yellow-400'
+    },
+    piano: {
+        bg: 'bg-[#2D1B25]',
+        active: 'bg-[#D94668]',
+        inactive: 'bg-[#683444]',
+        text: 'text-pink-400'
+    },
 };
 
 export const WaveformTrack = ({
@@ -35,6 +66,7 @@ export const WaveformTrack = ({
     soloed,
     currentTime,
     duration,
+    zoom = 1,
     onVolumeChange,
     onMuteToggle,
     onSoloToggle,
@@ -53,9 +85,9 @@ export const WaveformTrack = ({
         )}>
             {/* 1. Control Panel Container (Distinct Box) */}
             <div className={twMerge(
-                "w-48 h-20 rounded-xl border flex items-center px-4 justify-between shrink-0 relative overflow-hidden",
+                "w-48 h-32 rounded-xl border flex items-center px-4 justify-between shrink-0 sticky left-0 z-20 shadow-xl",
                 colors.bg,
-                "border-white/10 bg-zinc-900" // Base styling
+                "border-white/5"
             )}>
                 {/* Background Tint */}
                 <div className={twMerge("absolute inset-0 opacity-10 pointer-events-none", colors.bg)} />
@@ -91,28 +123,36 @@ export const WaveformTrack = ({
                 </div>
 
                 {/* Volume Slider - Vertical or small horizontal */}
-                <div className="w-20 pl-4 border-l border-white/5 z-10 flex items-center h-12">
+                <div className="w-20 pl-4 border-l border-white/5 z-10 flex items-center h-24">
                     <input
                         type="range"
                         min="-60"
                         max="6"
                         value={volume}
                         onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-                        className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-125 transition-all"
+                        className="h-full w-1 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-125 transition-all -rotate-180"
+                        style={{ writingMode: 'vertical-lr' }}
                     />
                 </div>
             </div>
 
             {/* 2. Waveform Container (Distinct Box) */}
-            <div className="flex-1 h-20 rounded-xl border border-white/10 bg-zinc-900 relative overflow-hidden flex items-center justify-center p-1.5">
+            <div
+                className={twMerge(
+                    "flex-1 h-32 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center p-1.5",
+                    colors.bg
+                )}
+                style={{ minWidth: `${zoom * 100}%` }}
+            >
                 {/* Background Tint */}
-                <div className={twMerge("absolute inset-0 opacity-5 pointer-events-none", colors.bg)} />
+                {/* <div className={twMerge("absolute inset-0 opacity-5 pointer-events-none", colors.bg)} /> */}
+                {/* Removed tint as we are using direct background colors now */}
 
                 <div className="w-full h-full relative flex items-center justify-center px-4">
                     {/* Loading State or Fallback */}
                     {!imageLoaded && !imageError && (
                         <div className="absolute inset-0 flex items-center justify-center mx-4">
-                            <Skeleton className={twMerge("w-full h-full rounded-lg opacity-20", colors.accent)} />
+                            <Skeleton className={twMerge("w-full h-full rounded-lg opacity-20", colors.active)} />
                         </div>
                     )}
 
@@ -129,37 +169,56 @@ export const WaveformTrack = ({
                             />
 
                             {/* Colorized Waveform using Mask */}
-                            <div
-                                className={twMerge(
-                                    "w-full h-full transition-opacity duration-300",
-                                    colors.accent, // Sets background color (e.g. bg-purple-500)
-                                    imageLoaded ? "opacity-100" : "opacity-0"
-                                )}
-                                style={{
-                                    maskImage: `url(${waveformUrl})`,
-                                    maskSize: '100% 100%',
-                                    maskRepeat: 'no-repeat',
-                                    maskPosition: 'center',
-                                    WebkitMaskImage: `url(${waveformUrl})`,
-                                    WebkitMaskSize: '100% 100%',
-                                    WebkitMaskRepeat: 'no-repeat',
-                                    WebkitMaskPosition: 'center',
-                                }}
-                            />
+                            <div className="relative w-full h-full">
+                                {/* Base Layer: Inactive/Future (Dimmer) */}
+                                <div
+                                    className={twMerge(
+                                        "absolute inset-0 transition-opacity duration-300",
+                                        colors.inactive,
+                                        imageLoaded ? "opacity-100" : "opacity-0"
+                                    )}
+                                    style={{
+                                        maskImage: `url(${waveformUrl})`,
+                                        maskSize: '100% 100%',
+                                        maskRepeat: 'no-repeat',
+                                        maskPosition: 'center',
+                                        WebkitMaskImage: `url(${waveformUrl})`,
+                                        WebkitMaskSize: '100% 100%',
+                                        WebkitMaskRepeat: 'no-repeat',
+                                        WebkitMaskPosition: 'center',
+                                        transform: 'translateZ(0)', // GPU acceleration
+                                    }}
+                                />
+
+                                {/* Overlay Layer: Active/Past (Bright) */}
+                                <div
+                                    className={twMerge(
+                                        "absolute inset-0 transition-opacity duration-300 will-change-[clip-path]",
+                                        colors.active,
+                                        imageLoaded ? "opacity-100" : "opacity-0"
+                                    )}
+                                    style={{
+                                        maskImage: `url(${waveformUrl})`,
+                                        maskSize: '100% 100%',
+                                        maskRepeat: 'no-repeat',
+                                        maskPosition: 'center',
+                                        WebkitMaskImage: `url(${waveformUrl})`,
+                                        WebkitMaskSize: '100% 100%',
+                                        WebkitMaskRepeat: 'no-repeat',
+                                        WebkitMaskPosition: 'center',
+                                        clipPath: `inset(0 ${100 - playheadPosition}% 0 0)`,
+                                        transform: 'translateZ(0)', // GPU acceleration
+                                    }}
+                                />
+                            </div>
                         </>
                     ) : (
                         /* Simple bar fallback */
                         <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                            <div className={twMerge("h-full w-1/2 animate-pulse", colors.accent)} />
+                            <div className={twMerge("h-full w-1/2 animate-pulse", colors.active)} />
                         </div>
                     )}
                 </div>
-
-                {/* Playhead Line */}
-                <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10 pointer-events-none"
-                    style={{ left: `${playheadPosition}%` }}
-                />
             </div>
         </div>
     );
