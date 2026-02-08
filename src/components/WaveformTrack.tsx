@@ -88,8 +88,9 @@ export const WaveformTrack = ({
             muted && "opacity-60 grayscale-[0.5]"
         )}>
             {/* 1. Control Panel (Flex Item, Fixed Width) */}
+            {/* 1. Control Panel (Flex Item, Fixed Width) */}
             <div className={twMerge(
-                "w-48 h-48 rounded-xl border flex items-center px-4 justify-between shrink-0 shadow-xl",
+                "w-48 h-32 rounded-xl border flex items-center px-4 justify-between shrink-0 shadow-xl",
                 colors.bg,
                 "border-white/5"
             )}>
@@ -127,7 +128,7 @@ export const WaveformTrack = ({
                 </div>
 
                 {/* Volume Slider - Vertical or small horizontal */}
-                <div className="w-20 pl-4 border-l border-white/5 z-10 flex items-center h-40">
+                <div className="w-20 pl-4 border-l border-white/5 z-10 flex items-center h-24">
                     <input
                         type="range"
                         min="-60"
@@ -145,14 +146,13 @@ export const WaveformTrack = ({
                 ref={scrollRef}
                 onScroll={onScroll}
                 className={twMerge(
-                    "flex-1 h-48 rounded-xl border border-white/5 relative overflow-x-auto flex items-center p-1.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]",
+                    "flex-1 h-32 rounded-xl border border-white/5 relative overflow-x-auto flex items-center p-1.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]",
                     colors.bg
                 )}
             >
                 {/* Inner Content (Scalable Width) */}
                 <div
-                    className="h-full relative flex items-center justify-center px-4"
-                    style={{ minWidth: `${zoom * 100}%`, width: `${zoom * 100}%` }}
+                    className="w-full h-full relative flex items-center justify-center px-4"
                 >
                     {/* Loading State or Fallback */}
                     {!imageLoaded && !imageError && (
@@ -184,11 +184,11 @@ export const WaveformTrack = ({
                                     )}
                                     style={{
                                         maskImage: `url(${waveformUrl})`,
-                                        maskSize: '100% 100%',
+                                        maskSize: '100% 400%',
                                         maskRepeat: 'no-repeat',
                                         maskPosition: 'center',
                                         WebkitMaskImage: `url(${waveformUrl})`,
-                                        WebkitMaskSize: '100% 100%',
+                                        WebkitMaskSize: '100% 400%',
                                         WebkitMaskRepeat: 'no-repeat',
                                         WebkitMaskPosition: 'center',
                                         transform: 'translateZ(0)', // GPU acceleration
@@ -204,11 +204,11 @@ export const WaveformTrack = ({
                                     )}
                                     style={{
                                         maskImage: `url(${waveformUrl})`,
-                                        maskSize: '100% 100%',
+                                        maskSize: '100% 400%',
                                         maskRepeat: 'no-repeat',
                                         maskPosition: 'center',
                                         WebkitMaskImage: `url(${waveformUrl})`,
-                                        WebkitMaskSize: '100% 100%',
+                                        WebkitMaskSize: '100% 400%',
                                         WebkitMaskRepeat: 'no-repeat',
                                         WebkitMaskPosition: 'center',
                                         clipPath: `inset(0 ${100 - playheadPosition}% 0 0)`,
