@@ -103,11 +103,11 @@ export const WaveformTrack = ({
             </div>
 
             {/* 2. Waveform Container (Distinct Box) */}
-            <div className="flex-1 h-20 rounded-xl border border-white/10 bg-zinc-900 relative overflow-hidden flex items-center justify-center">
+            <div className="flex-1 h-20 rounded-xl border border-white/10 bg-zinc-900 relative overflow-hidden flex items-center justify-center p-1.5">
                 {/* Background Tint */}
                 <div className={twMerge("absolute inset-0 opacity-5 pointer-events-none", colors.bg)} />
 
-                <div className="w-full h-12 relative flex items-center justify-center px-4">
+                <div className="w-full h-full relative flex items-center justify-center px-4">
                     {/* Loading State or Fallback */}
                     {!imageLoaded && !imageError && (
                         <div className={twMerge("absolute inset-0 flex items-center justify-center mx-4", colors.accent, "opacity-20 animate-pulse")}>
