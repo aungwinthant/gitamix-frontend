@@ -64,6 +64,8 @@ export const MixerPage = () => {
 
     if (result) {
         console.log('Job Result:', result);
+        console.log('Stem URLs:', result.stems);
+        if (result.waveforms) console.log('Waveform URLs:', result.waveforms);
     }
 
     return (
