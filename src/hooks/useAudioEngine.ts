@@ -121,7 +121,13 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
                 if (availablePlayerNames.length > 0) {
                     const firstPlayer = players.current[availablePlayerNames[0]];
                     if (firstPlayer && firstPlayer.buffer) {
-                        setDuration(firstPlayer.buffer.duration);
+                        const bufferDuration = firstPlayer.buffer.duration;
+                        setDuration(bufferDuration);
+
+                        // Set Transport loop points
+                        Tone.Transport.loop = true;
+                        Tone.Transport.loopStart = 0;
+                        Tone.Transport.loopEnd = bufferDuration;
                     }
                 }
 

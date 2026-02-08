@@ -15,14 +15,14 @@ interface WaveformTrackProps {
     onSoloToggle: () => void;
 }
 
-// Stem color palette with gradient values for waveform simulation
+// Stem color palette with gradient values for waveform simulation (Monochrome / High Contrast)
 const stemColors: Record<string, { bg: string; accent: string; text: string; gradient: string }> = {
-    vocals: { bg: 'bg-purple-500/20', accent: 'bg-purple-500', text: 'text-purple-400', gradient: 'from-purple-600 via-purple-400 to-purple-600' },
-    drums: { bg: 'bg-orange-500/20', accent: 'bg-orange-500', text: 'text-orange-400', gradient: 'from-orange-600 via-orange-400 to-orange-600' },
-    bass: { bg: 'bg-blue-500/20', accent: 'bg-blue-500', text: 'text-blue-400', gradient: 'from-blue-600 via-blue-400 to-blue-600' },
-    guitar: { bg: 'bg-green-500/20', accent: 'bg-green-500', text: 'text-green-400', gradient: 'from-green-600 via-green-400 to-green-600' },
-    piano: { bg: 'bg-pink-500/20', accent: 'bg-pink-500', text: 'text-pink-400', gradient: 'from-pink-600 via-pink-400 to-pink-600' },
-    other: { bg: 'bg-gray-500/20', accent: 'bg-gray-500', text: 'text-gray-400', gradient: 'from-gray-600 via-gray-400 to-gray-600' },
+    vocals: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
+    drums: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
+    bass: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
+    guitar: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
+    piano: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
+    other: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
 };
 
 export const WaveformTrack = ({
@@ -47,8 +47,8 @@ export const WaveformTrack = ({
     return (
         <div className={twMerge(
             "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300",
-            muted ? "opacity-40 border-gray-800 bg-gray-900/50" : `border-gray-700/50 ${colors.bg}`,
-            soloed && !muted && "ring-2 ring-yellow-400/60"
+            muted ? "opacity-30 border-gray-800 bg-black/40" : `border-gray-800 ${colors.bg}`,
+            soloed && !muted && "ring-1 ring-white"
         )}>
             {/* Track Label */}
             <div className="w-16 md:w-20 flex-shrink-0">
@@ -58,14 +58,14 @@ export const WaveformTrack = ({
             </div>
 
             {/* Waveform Container */}
-            <div className="flex-1 relative h-12 md:h-14 bg-black/50 rounded-lg overflow-hidden">
+            <div className="flex-1 relative h-24 md:h-32 bg-black rounded-lg overflow-hidden border border-white/5">
                 {/* Waveform Image or Gradient Fallback */}
                 {showWaveformImage ? (
                     <>
                         {/* Loading placeholder */}
                         {!imageLoaded && (
                             <div className={twMerge(
-                                "absolute inset-0 bg-gradient-to-r opacity-30 animate-pulse",
+                                "absolute inset-0 bg-gradient-to-r opacity-10 animate-pulse",
                                 colors.gradient
                             )} />
                         )}
@@ -73,13 +73,15 @@ export const WaveformTrack = ({
                             src={waveformUrl}
                             alt={`${name} waveform`}
                             className={twMerge(
-                                "w-full h-full object-cover transition-opacity duration-300",
-                                imageLoaded ? "opacity-90" : "opacity-0"
+                                "w-full h-full object-fill transition-opacity duration-300", // object-fill to stretch vertically
+                                imageLoaded ? "opacity-100" : "opacity-0"
                             )}
-                            style={{ filter: muted ? 'grayscale(100%) brightness(0.6)' : 'none' }}
+                            style={{
+                                filter: 'grayscale(100%) contrast(1.2) brightness(1.5)',
+                                mixBlendMode: 'screen'
+                            }}
                             crossOrigin="anonymous"
                             onLoad={() => {
-                                console.log(`Waveform loaded for ${name}:`, waveformUrl);
                                 setImageLoaded(true);
                             }}
                             onError={(e) => {
@@ -91,27 +93,35 @@ export const WaveformTrack = ({
                 ) : (
                     /* Smooth gradient bar as fallback */
                     <div className="w-full h-full flex items-center justify-center px-2">
-                        <div className={twMerge(
-                            "h-1.5 w-full rounded-full bg-gradient-to-r opacity-40",
-                            colors.gradient
-                        )} />
+                        <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-zinc-600 w-1/2 animate-pulse" />
+                        </div>
                     </div>
                 )}
 
-                {/* Progress overlay - shows played portion */}
+                {/* Progress overlay - shows played portion - INVERTED for white-on-black effect if needed, 
+                    OR standard overlay. Let's make it a simple white playhead line and maybe slightly dim the passed part?
+                    Actually, standard DAW behavior: playback cursor moves.
+                    Let's just use the playhead line for clarity in B&W.
+                */}
                 <div
-                    className="absolute inset-0 bg-black/30 pointer-events-none transition-all duration-75"
+                    className="absolute inset-0 bg-black/50 pointer-events-none transition-all duration-75"
                     style={{
+                        // reveal content as it plays? or cover? 
+                        // "clip-path: inset(0 X% 0 0)" cuts off the right side.
+                        // We want to darken the COMING part? Or darken the PLAYED part?
+                        // Let's just keep the simple playhead line for clean look.
+                        // But user requested "restart" visibility.
+                        // Let's keep the overlay style but make it subtle.
                         clipPath: `inset(0 ${100 - playheadPosition}% 0 0)`,
                     }}
                 />
 
                 {/* Playhead */}
                 <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-white/90 z-10"
+                    className="absolute top-0 bottom-0 w-0.5 bg-white z-10 shadow-[0_0_10px_rgba(255,255,255,0.5)]"
                     style={{
                         left: `${playheadPosition}%`,
-                        boxShadow: '0 0 8px rgba(255,255,255,0.6)'
                     }}
                 />
             </div>
@@ -122,31 +132,33 @@ export const WaveformTrack = ({
                 <button
                     onClick={onMuteToggle}
                     className={twMerge(
-                        "p-1.5 rounded-lg transition-all duration-200",
-                        muted ? "bg-red-500/30 text-red-400" : "hover:bg-white/10 text-gray-400 hover:text-white"
+                        "p-1.5 rounded-lg transition-all duration-200 border border-transparent",
+                        muted ? "text-zinc-500 hover:text-zinc-300" : "text-zinc-400 hover:text-white hover:border-white/10"
                     )}
+                    title="Mute"
                 >
                     {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </button>
 
-                {/* Volume Slider */}
+                {/* Volume Slider - styled to be minimal/white */}
                 <input
                     type="range"
                     min="-60"
                     max="6"
                     value={volume}
                     onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-                    className="w-12 md:w-16 h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110"
+                    className="w-12 md:w-16 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110"
                     disabled={muted}
                 />
 
-                {/* Solo Button */}
+                {/* Solo Button - minimal */}
                 <button
                     onClick={onSoloToggle}
                     className={twMerge(
-                        "px-2 py-1 text-xs font-bold rounded transition-all duration-200",
-                        soloed ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/30" : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+                        "px-2 py-1 text-xs font-bold rounded border transition-all duration-200",
+                        soloed ? "bg-white text-black border-white" : "bg-transparent text-zinc-500 border-zinc-700 hover:text-white hover:border-zinc-500"
                     )}
+                    title="Solo"
                 >
                     S
                 </button>

@@ -5,18 +5,11 @@ import type { ProcessResponse, JobStatusResponse } from '../types/api';
 
 export const useSeparationJob = () => {
     // Initialize from localStorage if available
-    const [jobId, setJobId] = useState<string | null>(() => {
-        return localStorage.getItem('current_job_id');
-    });
+    const [jobId, setJobId] = useState<string | null>(null);
     const queryClient = useQueryClient();
 
-    // Helper to update job ID and localStorage
+    // Helper to update job ID
     const handleSetJobId = useCallback((id: string | null) => {
-        if (id) {
-            localStorage.setItem('current_job_id', id);
-        } else {
-            localStorage.removeItem('current_job_id');
-        }
         setJobId(id);
     }, []);
 
