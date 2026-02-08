@@ -27,6 +27,7 @@ declare module 'waveform-playlist' {
 
     interface EventEmitter {
         on(event: string, callback: (...args: any[]) => void): void;
+        emit(event: string, ...args: any[]): void;
     }
 
     interface PlaylistInstance {
