@@ -13,6 +13,7 @@ import { LibraryView } from './components/LibraryView';
 import { AuthGate } from './components/auth/AuthGate';
 import { LoginModal } from './components/auth/LoginModal';
 import { MixerPage } from './pages/MixerPage';
+import { DebugPage } from './pages/DebugPage';
 
 // Home Component
 function Home() {
@@ -98,6 +99,7 @@ function App() {
               <Route path="/library" element={<Library />} />
               <Route path="/library/:jobId/mixer" element={<MixerPage />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/debug" element={<DebugPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>

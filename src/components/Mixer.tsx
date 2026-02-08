@@ -135,13 +135,15 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
         );
     }
 
-    // Define channel order for consistent UI
-    const ORDER = ['vocals', 'drums', 'bass', 'guitar', 'piano', 'other'];
-    const channelKeys = Object.keys(channels).sort((a, b) => {
-        const idxA = ORDER.indexOf(a);
-        const idxB = ORDER.indexOf(b);
-        return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
-    });
+    // Define channel order for consistent UI (Limited to 4 primary stems)
+    const ORDER = ['vocals', 'drums', 'bass', 'other'];
+    const channelKeys = Object.keys(channels)
+        .filter(key => ORDER.includes(key)) // Filter out non-primary stems like piano/guitar
+        .sort((a, b) => {
+            const idxA = ORDER.indexOf(a);
+            const idxB = ORDER.indexOf(b);
+            return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+        });
 
     return (
         <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
