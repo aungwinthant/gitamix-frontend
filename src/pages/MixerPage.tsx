@@ -62,6 +62,10 @@ export const MixerPage = () => {
         );
     }
 
+    if (result) {
+        console.log('Job Result:', result);
+    }
+
     return (
         <>
             <Header showNewUploadButton={true} onNewUpload={() => navigate('/')} />
