@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { StemsInfo, Metadata, WaveformsInfo } from '../types/api';
 import { twMerge } from 'tailwind-merge';
 import { api } from '../lib/api';
+import { MixerSkeleton } from './ui/SkeletonLoader';
 
 interface MixerProps {
     stems: StemsInfo;
@@ -126,13 +127,7 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
     }
 
     if (!isLoaded) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8 space-y-4">
-                <Loader2 className="w-12 h-12 text-cyan-500 animate-spin" />
-                <h2 className="text-xl font-semibold text-white">Loading Stems...</h2>
-                <p className="text-gray-400">Preparing audio engine buffers</p>
-            </div>
-        );
+        return <MixerSkeleton />;
     }
 
     // Define channel order for consistent UI (Limited to 4 primary stems)

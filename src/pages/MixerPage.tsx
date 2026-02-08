@@ -5,7 +5,8 @@ import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { Mixer } from '../components/Mixer';
 import { Header } from '../components/layout/Header';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { MixerSkeleton } from '../components/ui/SkeletonLoader';
 
 export const MixerPage = () => {
     const { jobId } = useParams<{ jobId: string }>();
@@ -31,10 +32,7 @@ export const MixerPage = () => {
         return (
             <>
                 <Header showNewUploadButton={true} onNewUpload={() => navigate('/')} />
-                <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                    <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mb-4" />
-                    <p className="text-gray-400 animate-pulse">Loading your mix...</p>
-                </div>
+                <MixerSkeleton />
             </>
         );
     }

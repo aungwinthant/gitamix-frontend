@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
+import { Skeleton } from './ui/SkeletonLoader';
 
 interface WaveformTrackProps {
     name: string;
@@ -110,8 +111,8 @@ export const WaveformTrack = ({
                 <div className="w-full h-full relative flex items-center justify-center px-4">
                     {/* Loading State or Fallback */}
                     {!imageLoaded && !imageError && (
-                        <div className={twMerge("absolute inset-0 flex items-center justify-center mx-4", colors.accent, "opacity-20 animate-pulse")}>
-                            <div className="w-full h-1 bg-current rounded-full" />
+                        <div className="absolute inset-0 flex items-center justify-center mx-4">
+                            <Skeleton className={twMerge("w-full h-full rounded-lg opacity-20", colors.accent)} />
                         </div>
                     )}
 

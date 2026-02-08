@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useSeparationJob } from './hooks/useSeparationJob';
 import { LandingView } from './components/LandingView';
@@ -64,7 +64,7 @@ function Home() {
             onLoginRequest={() => setShowLoginModal(true)}
           />
         )}
-        {showProcessing && <ProcessingView status={status === 'idle' ? 'uploading' : status as import('./types/api').JobStatus} progress={progress} error={statusError as Error || uploadError} />}
+        {showProcessing && <ProcessingView status={status === 'idle' ? 'uploading' : status as import('./types/api').JobStatus} progress={progress} error={statusError as Error || uploadError} onRetry={reset} />}
         {showAuthGate && <AuthGate />}
         {showMixer && <Mixer stems={result.stems} jobId={jobId!} metadata={result.metadata} waveforms={result.waveforms} onReset={reset} />}
 
@@ -77,10 +77,14 @@ function Home() {
   );
 }
 
+
+
 function Library() {
+  const navigate = useNavigate();
+
   return (
     <>
-      <Header showNewUploadButton={true} onNewUpload={() => window.location.href = '/'} />
+      <Header showNewUploadButton={true} onNewUpload={() => navigate('/')} />
       <main className="flex-1 flex flex-col mt-8">
         <LibraryView />
       </main>
