@@ -52,16 +52,31 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
         ];
 
         // Load tracks
-        const tracks = Object.entries(stems).map(([name, url], index) => ({
-            src: url,
-            name: name,
-            waveOutlineColor: trackColors[index % trackColors.length]
-        }));
+        // Pre-fetch stems as blobs to handle authentication
+        const loadStemsAndInit = async () => {
+            try {
+                const trackPromises = Object.entries(stems).map(async ([name, url], index) => {
+                    // Use the api utility to fetch with auth headers if needed
+                    const blobUrl = await import('../lib/api').then(m => m.fetchStemAsBlob(url));
+                    return {
+                        src: blobUrl,
+                        name: name,
+                        waveOutlineColor: trackColors[index % trackColors.length]
+                    };
+                });
 
-        playlist.load(tracks).then(() => {
-            console.log('Playlist loaded');
-            playlist.getEventEmitter().emit('mastervolumechange', 100);
-        });
+                const loadedTracks = await Promise.all(trackPromises);
+
+                playlist.load(loadedTracks).then(() => {
+                    console.log('Playlist loaded');
+                    playlist.getEventEmitter().emit('mastervolumechange', 100);
+                });
+            } catch (error) {
+                console.error("Failed to load stems:", error);
+            }
+        };
+
+        loadStemsAndInit();
 
         if (metadata) {
             console.log(`Loaded stems for ${metadata.title} by ${metadata.artist}`);
