@@ -80,7 +80,6 @@ export const MixerPage = () => {
                         </button>
                     </div>
 
-                    {/* Song Title */}
                     <div className="mb-6 text-center">
                         <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
                             {result.metadata?.title || 'Untitled Track'}

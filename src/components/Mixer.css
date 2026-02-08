@@ -1,0 +1,303 @@
+/* Dark theme overrides for waveform-playlist */
+
+.playlist {
+    margin: 0;
+    font-family: inherit;
+    background-color: transparent !important;
+    min-width: min-content;
+    /* Ensure playlist fits in scrolling container */
+}
+
+.playlist .channel-wrapper {
+    background-color: rgb(17 24 39) !important;
+    /* gray-900 */
+    border-bottom: 1px solid rgb(31 41 55);
+    /* gray-800 */
+    padding: 0 !important;
+    /* Remove vertical padding that might cause gaps */
+    display: flex;
+    /* Ensure flex layout for sticky behavior */
+    margin: 0 !important;
+    /* Remove any default margins including margin-left */
+}
+
+.playlist .channel {
+    background-color: transparent !important;
+}
+
+/* Controls (Left panel) */
+.playlist .controls {
+    background-color: rgb(17 24 39) !important;
+    /* gray-900 */
+    border-right: 1px solid rgb(31 41 55);
+    /* gray-800 */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* Center children horizontally */
+    padding: 0 10px;
+
+    /* Sticky positioning */
+    position: sticky !important;
+    left: 0;
+    z-index: 20;
+    /* Higher z-index to stay above content */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    /* Shadow to separate from waveform when scrolling */
+    margin: 0 !important;
+    /* Ensure no margin */
+}
+
+.playlist .controls header {
+    background-color: transparent;
+    color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-bottom: 5px;
+    border-bottom: none !important;
+    margin-bottom: 5px;
+    text-align: center;
+    width: 100%;
+}
+
+/* Track name */
+.playlist .controls .track-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgb(229 231 235);
+    /* gray-200 */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    text-align: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+/* Hide annoying minimize/close buttons in track header if any */
+.playlist .controls .track-header button {
+    display: none !important;
+}
+
+/* Buttons (Mute / Solo) */
+.playlist .btn-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    margin-bottom: 15px;
+    /* Spacing below buttons */
+    width: 100%;
+}
+
+.playlist .btn {
+    border-radius: 4px;
+    font-size: 0.7rem;
+    padding: 4px 12px;
+    text-transform: capitalize;
+    font-weight: 600;
+    border: 1px solid rgb(75 85 99);
+    /* gray-600 */
+    background-color: transparent;
+    color: rgb(209 213 219);
+    /* gray-300 */
+    transition: all 0.2s;
+    min-width: 50px;
+    /* Ensure uniform width */
+}
+
+.playlist .btn:hover {
+    background-color: rgb(55 65 81);
+    /* gray-700 */
+    color: white;
+}
+
+/* Mute Button Active/Hover */
+.playlist .btn-outline-dark:hover,
+.playlist .btn-outline-dark.active {
+    background-color: rgb(220 38 38) !important;
+    /* red-600 */
+    border-color: rgb(220 38 38) !important;
+    color: white !important;
+}
+
+/* Ensure standard button overrides */
+.playlist .btn-danger {
+    background-color: transparent;
+    border-color: rgb(75 85 99);
+}
+
+.playlist .btn-danger:hover,
+.playlist .btn-danger.active {
+    background-color: rgb(220 38 38) !important;
+    border-color: rgb(220 38 38) !important;
+}
+
+
+/* Solo Button Active/Hover - Amber/Orange for Solo */
+.playlist .btn-group .btn:last-child:hover,
+.playlist .btn-group .btn:last-child.active {
+    background-color: rgb(217 119 6) !important;
+    /* amber-600 */
+    border-color: rgb(217 119 6) !important;
+    color: white !important;
+}
+
+
+/* Sliders (Volume / Pan) */
+.playlist .controls label {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    color: rgb(156 163 175);
+    /* gray-400 */
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* Icons/Text labels - Using SVG Backgrounds with !important for robustness */
+.playlist .controls label:before,
+.playlist .controls label:after {
+    content: "" !important;
+    /* Enforce empty content for background image */
+    width: 16px !important;
+    height: 16px !important;
+    display: inline-block !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: contain !important;
+    opacity: 0.6;
+    font-family: initial !important;
+    /* Reset font to prevent garbage characters */
+}
+
+/* Volume Down Icon */
+.playlist .controls label.volume:before {
+    /* SVG: Speaker Quiet */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M7 9v6h4l5 5V4l-5 5H7z"/></svg>') !important;
+}
+
+/* Volume Up Icon */
+.playlist .controls label.volume:after {
+    /* SVG: Speaker Loud */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>') !important;
+}
+
+/* Pan Left Text - Override for text */
+.playlist .controls label.stereopan:before {
+    content: "L" !important;
+    background-image: none !important;
+    color: rgb(156 163 175);
+    font-weight: 700;
+    width: 16px !important;
+    text-align: center;
+    line-height: 16px;
+    font-family: inherit !important;
+}
+
+/* Pan Right Text - Override for text */
+.playlist .controls label.stereopan:after {
+    content: "R" !important;
+    background-image: none !important;
+    color: rgb(156 163 175);
+    font-weight: 700;
+    width: 16px !important;
+    text-align: center;
+    line-height: 16px;
+    font-family: inherit !important;
+}
+
+.playlist .controls input[type="range"] {
+    background: transparent;
+    height: 24px;
+    -webkit-appearance: none;
+    margin: 0 8px;
+    flex-grow: 1;
+    cursor: pointer;
+}
+
+/* Slider Track */
+.playlist .controls input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    background: rgb(55 65 81);
+    /* gray-700 */
+    border-radius: 2px;
+}
+
+/* Slider Thumb */
+.playlist .controls input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    margin-top: -4px;
+    /* center on track */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    background: rgb(234 179 8);
+    /* yellow-500 default */
+}
+
+/* Pan Slider Thumb Color */
+.playlist .controls label.stereopan input[type="range"]::-webkit-slider-thumb {
+    background: rgb(234 179 8);
+    /* amber-500 */
+}
+
+.playlist .controls label.volume input[type="range"]::-webkit-slider-thumb {
+    background: rgb(234 179 8);
+    /* amber-500 */
+}
+
+
+/* Waveform canvas background */
+.playlist .channel progress {
+    background-color: transparent !important;
+}
+
+/* Selection / Cursor */
+.playlist .cursor {
+    background-color: rgb(234 179 8);
+    /* amber-500 cursor */
+    width: 2px !important;
+}
+
+.playlist .selection {
+    background-color: rgba(234 179 8, 0.1);
+    border: 1px solid rgba(234 179 8, 0.5);
+}
+
+/* Ruler / Timeline */
+.playlist .playlist-time-scale {
+    border-bottom: 1px solid rgb(31 41 55);
+    color: rgb(156 163 175);
+    font-size: 0.75rem;
+    z-index: 10;
+    /* Ensure ruler stays above scrollbar if needed */
+}
+
+/* Annotations */
+.playlist .annotations .annotations-text {
+    font-size: 12px;
+    color: rgb(156 163 175);
+}
+
+/* Hide Scrollbar but allow scrolling */
+.playlist-container {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.playlist-container::-webkit-scrollbar {
+    display: none;
+}
