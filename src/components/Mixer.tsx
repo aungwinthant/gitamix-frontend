@@ -22,7 +22,8 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
     const [showPremiumModal, setShowPremiumModal] = useState(false);
     const [zoom, setZoom] = useState(1);
     const { user } = useAuth();
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const trackRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+    const isScrollingRef = useRef(false);
 
     const isPremium = user?.tier === 'pro';
 
@@ -42,31 +43,52 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
         seek
     } = useAudioEngine(stems, 120);
 
-    // Auto-scroll logic
-    useEffect(() => {
-        if (!scrollContainerRef.current || !duration || duration === 0) return;
+    // Synchronized scrolling
+    const handleTrackScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+        if (isScrollingRef.current) return;
 
-        // If zooming, we might want to center the current playhead too
-        // Standard auto-scroll: Keep playhead centered
+        isScrollingRef.current = true;
+        const target = e.target as HTMLDivElement;
+        const scrollLeft = target.scrollLeft;
+
+        trackRefs.current.forEach((ref) => {
+            if (ref && ref !== target) {
+                ref.scrollLeft = scrollLeft;
+            }
+        });
+
+        // Small timeout to reset lock
+        requestAnimationFrame(() => {
+            isScrollingRef.current = false;
+        });
+    }, []);
+
+    // Auto-scroll logic (Applied to all tracks)
+    useEffect(() => {
+        if (!duration || duration === 0) return;
+
+        const refs = Array.from(trackRefs.current.values());
+        if (refs.length === 0) return;
+
+        // Use first track to calculate dimensions (assuming consistent sizing)
+        const container = refs[0];
         const percent = currentTime / duration;
-        const container = scrollContainerRef.current;
         const totalWidth = container.scrollWidth;
         const clientWidth = container.clientWidth;
 
-        // Calculate target scroll position to center the playhead
-        // The playhead is at `percent` of the total scrollable width (roughly, minus padding)
-        // Actually, the WaveformTrack is width 100% of container * zoom. 
-        // But the container has sticky (48px) + waveform. 
-        // Wait, the sticky part is INSIDE the scroll container.
-        // So the scrollWidth is accurate.
-
         const targetScroll = (totalWidth * percent) - (clientWidth / 2);
 
-        // Use smooth scroll only if the jump is small (game loop style)
-        // But for frequent updates, direct assignment is better to avoid lag
-        container.scrollLeft = targetScroll;
+        // Sync all tracks
+        // Temporarily lock sync listener to avoid loops triggered by auto-scroll
+        isScrollingRef.current = true;
+        refs.forEach(ref => {
+            if (ref) ref.scrollLeft = targetScroll;
+        });
+        requestAnimationFrame(() => {
+            isScrollingRef.current = false;
+        });
 
-    }, [currentTime, duration, zoom]); // Run whenever time updates
+    }, [currentTime, duration, zoom]);
 
     const handleExport = async () => {
         if (!isPremium) {
@@ -175,10 +197,7 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
             <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-3xl p-4 md:p-6 mb-8 shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none" />
 
-                <div
-                    ref={scrollContainerRef}
-                    className="relative z-10 space-y-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]"
-                >
+                <div className="relative z-10 space-y-3 pb-2">
                     {channelKeys.map((name) => (
                         <WaveformTrack
                             key={name}
@@ -193,6 +212,12 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
                             onVolumeChange={(val) => setChannelVolume(name, val)}
                             onMuteToggle={() => toggleMute(name)}
                             onSoloToggle={() => toggleSolo(name)}
+                            onScroll={handleTrackScroll}
+                            // @ts-ignore - allowing function ref for map management
+                            scrollRef={(el: HTMLDivElement | null) => {
+                                if (el) trackRefs.current.set(name, el);
+                                else trackRefs.current.delete(name);
+                            }}
                         />
                     ))}
                 </div>
