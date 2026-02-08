@@ -15,6 +15,8 @@ interface WaveformTrackProps {
     onVolumeChange: (value: number) => void;
     onMuteToggle: () => void;
     onSoloToggle: () => void;
+    onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
+    scrollRef?: React.RefObject<HTMLDivElement>;
 }
 
 // Stem color palette matching the user's reference
@@ -70,6 +72,8 @@ export const WaveformTrack = ({
     onVolumeChange,
     onMuteToggle,
     onSoloToggle,
+    onScroll,
+    scrollRef,
 }: WaveformTrackProps) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
@@ -83,9 +87,9 @@ export const WaveformTrack = ({
             "flex items-center gap-3 transition-opacity duration-300",
             muted && "opacity-60 grayscale-[0.5]"
         )}>
-            {/* 1. Control Panel Container (Distinct Box) */}
+            {/* 1. Control Panel (Flex Item, Fixed Width) */}
             <div className={twMerge(
-                "w-48 h-32 rounded-xl border flex items-center px-4 justify-between shrink-0 sticky left-0 z-20 shadow-xl",
+                "w-48 h-48 rounded-xl border flex items-center px-4 justify-between shrink-0 shadow-xl",
                 colors.bg,
                 "border-white/5"
             )}>
@@ -123,7 +127,7 @@ export const WaveformTrack = ({
                 </div>
 
                 {/* Volume Slider - Vertical or small horizontal */}
-                <div className="w-20 pl-4 border-l border-white/5 z-10 flex items-center h-24">
+                <div className="w-20 pl-4 border-l border-white/5 z-10 flex items-center h-40">
                     <input
                         type="range"
                         min="-60"
@@ -136,19 +140,20 @@ export const WaveformTrack = ({
                 </div>
             </div>
 
-            {/* 2. Waveform Container (Distinct Box) */}
+            {/* 2. Waveform Viewport (Flex Item, Scrollable) */}
             <div
+                ref={scrollRef}
+                onScroll={onScroll}
                 className={twMerge(
-                    "flex-1 h-32 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center p-1.5",
+                    "flex-1 h-48 rounded-xl border border-white/5 relative overflow-x-auto flex items-center p-1.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]",
                     colors.bg
                 )}
-                style={{ minWidth: `${zoom * 100}%` }}
             >
-                {/* Background Tint */}
-                {/* <div className={twMerge("absolute inset-0 opacity-5 pointer-events-none", colors.bg)} /> */}
-                {/* Removed tint as we are using direct background colors now */}
-
-                <div className="w-full h-full relative flex items-center justify-center px-4">
+                {/* Inner Content (Scalable Width) */}
+                <div
+                    className="h-full relative flex items-center justify-center px-4"
+                    style={{ minWidth: `${zoom * 100}%`, width: `${zoom * 100}%` }}
+                >
                     {/* Loading State or Fallback */}
                     {!imageLoaded && !imageError && (
                         <div className="absolute inset-0 flex items-center justify-center mx-4">
