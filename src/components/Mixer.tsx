@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Play, Pause, Loader2, RefreshCcw, SkipBack, SkipForward, Download, Music } from 'lucide-react';
 import { useAudioEngine } from '../hooks/useAudioEngine';
 import { WaveformTrack } from './WaveformTrack';
+import { PremiumModal } from './PremiumModal';
+import { useAuth } from '../contexts/AuthContext';
 import type { StemsInfo, Metadata, WaveformsInfo } from '../types/api';
 import { twMerge } from 'tailwind-merge';
 import { api } from '../lib/api';
@@ -16,8 +18,10 @@ interface MixerProps {
 
 export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps) => {
     const [isExporting, setIsExporting] = useState(false);
+    const [showPremiumModal, setShowPremiumModal] = useState(false);
+    const { user } = useAuth();
 
-
+    const isPremium = user?.tier === 'pro';
 
     const {
         isLoaded,
@@ -36,6 +40,11 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
     } = useAudioEngine(stems, 120);
 
     const handleExport = async () => {
+        if (!isPremium) {
+            setShowPremiumModal(true);
+            return;
+        }
+
         setIsExporting(true);
         try {
             await api.exportStems(jobId, metadata?.title);
@@ -217,8 +226,10 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
                 </div>
             </div>
 
-
-
+            <PremiumModal
+                isOpen={showPremiumModal}
+                onClose={() => setShowPremiumModal(false)}
+            />
         </div>
     );
 };
