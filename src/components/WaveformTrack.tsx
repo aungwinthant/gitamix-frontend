@@ -73,12 +73,19 @@ export const WaveformTrack = ({
                             src={waveformUrl}
                             alt={`${name} waveform`}
                             className={twMerge(
-                                "w-full h-full object-fill transition-opacity duration-300",
+                                "w-full h-full object-cover transition-opacity duration-300",
                                 imageLoaded ? "opacity-90" : "opacity-0"
                             )}
                             style={{ filter: muted ? 'grayscale(100%) brightness(0.6)' : 'none' }}
-                            onLoad={() => setImageLoaded(true)}
-                            onError={() => setImageError(true)}
+                            crossOrigin="anonymous"
+                            onLoad={() => {
+                                console.log(`Waveform loaded for ${name}:`, waveformUrl);
+                                setImageLoaded(true);
+                            }}
+                            onError={(e) => {
+                                console.error(`Failed to load waveform for ${name}:`, waveformUrl, e);
+                                setImageError(true);
+                            }}
                         />
                     </>
                 ) : (

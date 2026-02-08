@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Play, Pause, Loader2, RefreshCcw, SkipBack, SkipForward, Download, Music } from 'lucide-react';
 import { useAudioEngine } from '../hooks/useAudioEngine';
 import { WaveformTrack } from './WaveformTrack';
@@ -56,6 +56,41 @@ export const Mixer = ({ stems, jobId, metadata, waveforms, onReset }: MixerProps
     };
 
 
+
+    // Keyboard controls
+    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+        // Don't trigger if user is typing in an input
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+            return;
+        }
+
+        switch (e.code) {
+            case 'Space':
+                e.preventDefault();
+                togglePlayback();
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                seek(Math.max(0, currentTime - 5));
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                seek(Math.min(duration, currentTime + 5));
+                break;
+            case 'Home':
+                e.preventDefault();
+                seek(0);
+                break;
+        }
+    }, [togglePlayback, seek, currentTime, duration]);
+
+    // Register keyboard event listener
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isLoaded, handleKeyDown]);
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
