@@ -50,6 +50,21 @@ client.interceptors.request.use((config) => {
     return config;
 });
 
+// Fetch a stem audio file as a blob URL (goes through axios with auth headers)
+export const fetchStemAsBlob = async (stemUrl: string): Promise<string> => {
+    // If it's already a full URL (like Supabase public URLs), return as-is
+    if (stemUrl.startsWith('http://') || stemUrl.startsWith('https://')) {
+        return stemUrl;
+    }
+
+    // For relative API paths, fetch through axios to include auth headers
+    const response = await client.get(stemUrl.replace(/^\/api\/v1/, ''), {
+        responseType: 'blob'
+    });
+
+    return URL.createObjectURL(response.data);
+};
+
 export const api = {
     // Auth Endpoints
     getGoogleAuthUrl: async (): Promise<string> => {
