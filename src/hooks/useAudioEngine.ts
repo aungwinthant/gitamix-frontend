@@ -112,7 +112,12 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
             } catch (err) {
                 if (isCancelled) return;
                 console.error("Failed to load audio engine:", err);
-                setLoadError(err instanceof Error ? err.message : 'Failed to load audio stems. Please try again.');
+                const errorMessage = err instanceof Error ? err.message : 'Failed to load audio stems.';
+                // Check if it's a 403/401 related to signed URLs
+                if (errorMessage.includes('403') || errorMessage.includes('Forbidden')) {
+                    console.error("Potentially expired signed URL");
+                }
+                setLoadError(errorMessage);
             }
         };
 
