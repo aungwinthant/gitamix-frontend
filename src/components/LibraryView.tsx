@@ -3,6 +3,7 @@ import { api } from '../lib/api';
 import type { JobStatusResponse } from '../types/api';
 import { Loader2, Play, AlertCircle, Calendar, Music, Pause, Trash2, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Skeleton } from './ui/SkeletonLoader';
 
 export function LibraryView() {
     const [jobs, setJobs] = useState<JobStatusResponse[]>([]);
@@ -79,15 +80,15 @@ export function LibraryView() {
     if (isLoading && jobs.length === 0) {
         return (
             <div className="container mx-auto px-4 max-w-4xl">
-                <div className="h-8 w-48 bg-gray-800 rounded-lg animate-pulse mb-6" />
+                <Skeleton className="h-8 w-48 rounded-lg mb-6" />
                 <div className="grid gap-4">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 flex items-center justify-between animate-pulse">
+                        <div key={i} className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
                             <div className="flex items-center gap-4 w-full">
-                                <div className="w-10 h-10 rounded-lg bg-gray-800" />
+                                <Skeleton className="w-10 h-10 rounded-lg" />
                                 <div className="space-y-2 flex-1 max-w-[300px]">
-                                    <div className="h-5 bg-gray-800 rounded w-3/4" />
-                                    <div className="h-3 bg-gray-800 rounded w-1/2" />
+                                    <Skeleton className="h-5 w-3/4 rounded" />
+                                    <Skeleton className="h-3 w-1/2 rounded" />
                                 </div>
                             </div>
                         </div>
@@ -126,9 +127,9 @@ export function LibraryView() {
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full min-w-0">
                             <div className="flex items-center gap-4 flex-1 min-w-0">
                                 <div className={`w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center ${job.status === 'completed' ? 'bg-cyan-500/20 text-cyan-400' :
-                                        job.status === 'failed' ? 'bg-red-500/20 text-red-400' :
-                                            job.status === 'paused' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                'bg-blue-500/20 text-blue-400'
+                                    job.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+                                        job.status === 'paused' ? 'bg-yellow-500/20 text-yellow-400' :
+                                            'bg-blue-500/20 text-blue-400'
                                     }`}>
                                     {job.status === 'completed' ? <Play className="w-5 h-5 fill-current" /> :
                                         job.status === 'failed' ? <AlertCircle className="w-5 h-5" /> :

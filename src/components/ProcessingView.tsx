@@ -6,9 +6,10 @@ interface ProcessingViewProps {
     status: JobStatus;
     progress: number;
     error: Error | null;
+    onRetry?: () => void;
 }
 
-export const ProcessingView = ({ status, progress, error }: ProcessingViewProps) => {
+export const ProcessingView = ({ status, progress, error, onRetry }: ProcessingViewProps) => {
     const steps = [
         { id: 'uploading', label: 'Uploading file...', icon: Loader2 },
         { id: 'pending', label: 'Queued for separation', icon: Loader2 },
@@ -27,7 +28,7 @@ export const ProcessingView = ({ status, progress, error }: ProcessingViewProps)
                 <h2 className="text-2xl font-bold text-white mb-2">Processing Failed</h2>
                 <p className="text-red-400 mb-8 max-w-md">{error?.message || "An unexpected error occurred while processing your file."}</p>
                 <button
-                    onClick={() => window.location.reload()} // Simple reset for now, ideal would be a reset prop
+                    onClick={onRetry || (() => window.location.reload())}
                     className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-white transition-colors"
                 >
                     Try Again
