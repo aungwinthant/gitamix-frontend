@@ -19,6 +19,19 @@ declare global {
 
 const API_BASE_URL = window._env_?.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080/api/v1';
 
+// Get base URL without the /api/v1 suffix for resolving relative paths
+const getBaseUrl = (): string => {
+    return API_BASE_URL.replace(/\/api\/v1\/?$/, '');
+};
+
+// Resolve a relative stem URL to an absolute URL that Tone.js can fetch
+export const resolveStemUrl = (relativeUrl: string): string => {
+    if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
+        return relativeUrl; // Already absolute
+    }
+    return `${getBaseUrl()}${relativeUrl}`;
+};
+
 const client = axios.create({
     baseURL: API_BASE_URL,
 });

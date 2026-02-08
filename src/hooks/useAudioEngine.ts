@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as Tone from 'tone';
 import type { StemsInfo } from '../types/api';
+import { resolveStemUrl } from '../lib/api';
 
 interface ChannelState {
     name: string;
@@ -62,9 +63,12 @@ export const useAudioEngine = (stems: StemsInfo | undefined, originalBpm: number
                     const channel = new Tone.Channel({ volume: 0, pan: 0 }).toDestination();
                     channelNodes.current[name] = channel;
 
+                    // Resolve relative URL to absolute URL
+                    const absoluteUrl = resolveStemUrl(url);
+
                     // Player setup (GrainPlayer for pitch-preserving stretch)
                     const player = new Tone.GrainPlayer({
-                        url: url, // Assuming URL is accessible
+                        url: absoluteUrl,
                         loop: true,
                         grainSize: 0.2,
                         overlap: 0.1,
