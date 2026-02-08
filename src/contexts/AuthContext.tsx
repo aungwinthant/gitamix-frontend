@@ -10,6 +10,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     loginWithGoogle: () => Promise<void>;
+    debugLogin: () => void;
     handleCallback: (code: string) => Promise<void>;
     logout: () => void;
     refreshUser: () => Promise<void>;
@@ -59,6 +60,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const debugLogin = () => {
+        const mockUser: User = {
+            id: 'debug-user',
+            email: 'debug@example.com',
+            name: 'Debug User',
+            tier: 'pro',
+            created_at: new Date().toISOString()
+        };
+        setUser(mockUser);
+        setUsage({ used: 0, limit: 100, month_year: '2024-01' });
+        setCanProcess(true);
+    };
+
     const handleCallback = async (code: string) => {
         setIsLoading(true);
         try {
@@ -94,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             isAuthenticated: !!user,
             isLoading,
             loginWithGoogle,
+            debugLogin,
             handleCallback,
             logout,
             refreshUser

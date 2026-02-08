@@ -15,14 +15,15 @@ interface WaveformTrackProps {
     onSoloToggle: () => void;
 }
 
-// Stem color palette with gradient values for waveform simulation (Monochrome / High Contrast)
+// Stem color palette with vibrant colors
 const stemColors: Record<string, { bg: string; accent: string; text: string; gradient: string }> = {
-    vocals: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
-    drums: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
-    bass: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
-    guitar: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
-    piano: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
-    other: { bg: 'bg-zinc-900', accent: 'bg-white', text: 'text-zinc-300', gradient: 'from-zinc-500 via-zinc-300 to-zinc-500' },
+    vocals: { bg: 'bg-purple-500/10', accent: 'bg-purple-500', text: 'text-purple-400', gradient: 'from-purple-600 via-purple-400 to-purple-600' },
+    drums: { bg: 'bg-orange-500/10', accent: 'bg-orange-500', text: 'text-orange-400', gradient: 'from-orange-600 via-orange-400 to-orange-600' },
+    bass: { bg: 'bg-cyan-500/10', accent: 'bg-cyan-500', text: 'text-cyan-400', gradient: 'from-cyan-600 via-cyan-400 to-cyan-600' },
+    other: { bg: 'bg-emerald-500/10', accent: 'bg-emerald-500', text: 'text-emerald-400', gradient: 'from-emerald-600 via-emerald-400 to-emerald-600' },
+    // Fallbacks just in case
+    guitar: { bg: 'bg-yellow-500/10', accent: 'bg-yellow-500', text: 'text-yellow-400', gradient: 'from-yellow-600 via-yellow-400 to-yellow-600' },
+    piano: { bg: 'bg-pink-500/10', accent: 'bg-pink-500', text: 'text-pink-400', gradient: 'from-pink-600 via-pink-400 to-pink-600' },
 };
 
 export const WaveformTrack = ({
@@ -46,122 +47,118 @@ export const WaveformTrack = ({
 
     return (
         <div className={twMerge(
-            "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300",
-            muted ? "opacity-30 border-gray-800 bg-black/40" : `border-gray-800 ${colors.bg}`,
-            soloed && !muted && "ring-1 ring-white"
+            "flex items-center gap-3 transition-opacity duration-300",
+            muted && "opacity-60 grayscale-[0.5]"
         )}>
-            {/* Track Label */}
-            <div className="w-16 md:w-20 flex-shrink-0">
-                <span className={twMerge("text-xs md:text-sm font-semibold capitalize truncate", colors.text)}>
-                    {name}
-                </span>
-            </div>
+            {/* 1. Control Panel Container (Distinct Box) */}
+            <div className={twMerge(
+                "w-48 h-20 rounded-xl border flex items-center px-4 justify-between shrink-0 relative overflow-hidden",
+                colors.bg,
+                "border-white/10 bg-zinc-900" // Base styling
+            )}>
+                {/* Background Tint */}
+                <div className={twMerge("absolute inset-0 opacity-10 pointer-events-none", colors.bg)} />
 
-            {/* Waveform Container */}
-            <div className="flex-1 relative h-24 md:h-32 bg-black rounded-lg overflow-hidden border border-white/5">
-                {/* Waveform Image or Gradient Fallback */}
-                {showWaveformImage ? (
-                    <>
-                        {/* Loading placeholder */}
-                        {!imageLoaded && (
-                            <div className={twMerge(
-                                "absolute inset-0 bg-gradient-to-r opacity-10 animate-pulse",
-                                colors.gradient
-                            )} />
-                        )}
-                        <img
-                            src={waveformUrl}
-                            alt={`${name} waveform`}
+                {/* Title & Mute/Solo */}
+                <div className="flex flex-col justify-center gap-1.5 z-10">
+                    <span className={twMerge("text-xs font-bold uppercase tracking-wider truncate", colors.text)}>
+                        {name}
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={onMuteToggle}
                             className={twMerge(
-                                "w-full h-full object-fill transition-opacity duration-300", // object-fill to stretch vertically
-                                imageLoaded ? "opacity-100" : "opacity-0"
+                                "p-1.5 rounded-md hover:bg-white/10 transition-colors flex items-center justify-center border border-transparent hover:border-white/10",
+                                muted ? "text-red-400 bg-white/5" : "text-gray-400 hover:text-white"
                             )}
-                            style={{
-                                filter: 'grayscale(100%) contrast(1.2) brightness(1.5)',
-                                mixBlendMode: 'screen'
-                            }}
-                            crossOrigin="anonymous"
-                            onLoad={() => {
-                                setImageLoaded(true);
-                            }}
-                            onError={(e) => {
-                                console.error(`Failed to load waveform for ${name}:`, waveformUrl, e);
-                                setImageError(true);
-                            }}
-                        />
-                    </>
-                ) : (
-                    /* Smooth gradient bar as fallback */
-                    <div className="w-full h-full flex items-center justify-center px-2">
-                        <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-zinc-600 w-1/2 animate-pulse" />
-                        </div>
+                            title="Mute"
+                        >
+                            {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
+                            onClick={onSoloToggle}
+                            className={twMerge(
+                                "px-2 py-0.5 text-[10px] font-bold rounded-md border transition-colors flex items-center justify-center",
+                                soloed ? "bg-yellow-500 text-black border-yellow-500" : "text-gray-500 border-gray-700 hover:text-gray-300 hover:border-gray-500"
+                            )}
+                            title="Solo"
+                        >
+                            S
+                        </button>
                     </div>
-                )}
+                </div>
 
-                {/* Progress overlay - shows played portion - INVERTED for white-on-black effect if needed, 
-                    OR standard overlay. Let's make it a simple white playhead line and maybe slightly dim the passed part?
-                    Actually, standard DAW behavior: playback cursor moves.
-                    Let's just use the playhead line for clarity in B&W.
-                */}
-                <div
-                    className="absolute inset-0 bg-black/50 pointer-events-none transition-all duration-75"
-                    style={{
-                        // reveal content as it plays? or cover? 
-                        // "clip-path: inset(0 X% 0 0)" cuts off the right side.
-                        // We want to darken the COMING part? Or darken the PLAYED part?
-                        // Let's just keep the simple playhead line for clean look.
-                        // But user requested "restart" visibility.
-                        // Let's keep the overlay style but make it subtle.
-                        clipPath: `inset(0 ${100 - playheadPosition}% 0 0)`,
-                    }}
-                />
-
-                {/* Playhead */}
-                <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-white z-10 shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-                    style={{
-                        left: `${playheadPosition}%`,
-                    }}
-                />
+                {/* Volume Slider - Vertical or small horizontal */}
+                <div className="w-20 pl-4 border-l border-white/5 z-10 flex items-center h-12">
+                    <input
+                        type="range"
+                        min="-60"
+                        max="6"
+                        value={volume}
+                        onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
+                        className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-125 transition-all"
+                    />
+                </div>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
-                {/* Mute Button */}
-                <button
-                    onClick={onMuteToggle}
-                    className={twMerge(
-                        "p-1.5 rounded-lg transition-all duration-200 border border-transparent",
-                        muted ? "text-zinc-500 hover:text-zinc-300" : "text-zinc-400 hover:text-white hover:border-white/10"
-                    )}
-                    title="Mute"
-                >
-                    {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                </button>
+            {/* 2. Waveform Container (Distinct Box) */}
+            <div className="flex-1 h-20 rounded-xl border border-white/10 bg-zinc-900 relative overflow-hidden flex items-center justify-center">
+                {/* Background Tint */}
+                <div className={twMerge("absolute inset-0 opacity-5 pointer-events-none", colors.bg)} />
 
-                {/* Volume Slider - styled to be minimal/white */}
-                <input
-                    type="range"
-                    min="-60"
-                    max="6"
-                    value={volume}
-                    onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-                    className="w-12 md:w-16 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110"
-                    disabled={muted}
+                <div className="w-full h-12 relative flex items-center justify-center px-4">
+                    {/* Loading State or Fallback */}
+                    {!imageLoaded && !imageError && (
+                        <div className={twMerge("absolute inset-0 flex items-center justify-center mx-4", colors.accent, "opacity-20 animate-pulse")}>
+                            <div className="w-full h-1 bg-current rounded-full" />
+                        </div>
+                    )}
+
+                    {showWaveformImage ? (
+                        <>
+                            {/* Hidden Image for loading logic */}
+                            <img
+                                src={waveformUrl}
+                                className="hidden"
+                                onLoad={() => setImageLoaded(true)}
+                                onError={() => setImageError(true)}
+                                crossOrigin="anonymous"
+                                alt=""
+                            />
+
+                            {/* Colorized Waveform using Mask */}
+                            <div
+                                className={twMerge(
+                                    "w-full h-full transition-opacity duration-300",
+                                    colors.accent, // Sets background color (e.g. bg-purple-500)
+                                    imageLoaded ? "opacity-100" : "opacity-0"
+                                )}
+                                style={{
+                                    maskImage: `url(${waveformUrl})`,
+                                    maskSize: '100% 100%',
+                                    maskRepeat: 'no-repeat',
+                                    maskPosition: 'center',
+                                    WebkitMaskImage: `url(${waveformUrl})`,
+                                    WebkitMaskSize: '100% 100%',
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    WebkitMaskPosition: 'center',
+                                }}
+                            />
+                        </>
+                    ) : (
+                        /* Simple bar fallback */
+                        <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                            <div className={twMerge("h-full w-1/2 animate-pulse", colors.accent)} />
+                        </div>
+                    )}
+                </div>
+
+                {/* Playhead Line */}
+                <div
+                    className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10 pointer-events-none"
+                    style={{ left: `${playheadPosition}%` }}
                 />
-
-                {/* Solo Button - minimal */}
-                <button
-                    onClick={onSoloToggle}
-                    className={twMerge(
-                        "px-2 py-1 text-xs font-bold rounded border transition-all duration-200",
-                        soloed ? "bg-white text-black border-white" : "bg-transparent text-zinc-500 border-zinc-700 hover:text-white hover:border-zinc-500"
-                    )}
-                    title="Solo"
-                >
-                    S
-                </button>
             </div>
         </div>
     );
