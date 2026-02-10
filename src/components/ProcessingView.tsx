@@ -88,7 +88,7 @@ export const ProcessingView = ({ status, progress, error, onRetry }: ProcessingV
                                 <div className="flex-1">
                                     <h4 className={twMerge(
                                         "font-medium",
-                                        isCurrent ? "text-cyan-400" : isCompleted ? "text-green-400" : "text-gray-400"
+                                        isCurrent && status !== 'completed' ? "text-cyan-400" : "text-gray-300"
                                     )}>
                                         {isCompleted && step.id !== 'completed' ? step.label.replace('...', '') + ' ✓' : step.label}
                                     </h4>

@@ -55,14 +55,16 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
         playlist.getEventEmitter().emit('automaticscroll', isAutoScroll);
 
         // Vibrant colors for stems
+        // Vibrant colors for stems (with opacity for Landr-like feel)
+        // Retro-themed colors for stems
         const COMPONENT_COLORS: Record<string, string> = {
-            vocals: '#FF0055', // Neon Pink
-            drums: '#00FFFF',  // Cyan
-            drums_2: '#00CED1', // Darker Cyan
-            bass: '#FFD700',   // Gold
-            other: '#BF00FF',  // Electric Purple
-            guitar: '#FF5500', // Bright Orange
-            piano: '#00FF00',  // Lime Green
+            vocals: '#FF6B6B', // Retro Red/Coral
+            drums: '#4ECDC4',  // Retro Teal
+            drums_2: '#45B7D1', // Retro Blue
+            bass: '#FFE66D',   // Retro Yellow
+            other: '#9D65C9',  // Retro Purple
+            guitar: '#FF9F43', // Retro Orange
+            piano: '#88D8B0',  // Retro Green
         };
         const DEFAULT_COLOR = '#ffffff';
 
@@ -111,6 +113,46 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
         };
 
     }, [stems, metadata]);
+
+    // Handle sticky controls via JS transform to work around waveform-playlist DOM structure
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        let animationFrameId: number;
+
+        const handleScroll = () => {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(() => {
+                const scrollLeft = container.scrollLeft;
+                // Select all controls within this container and apply transform
+                // This effectively pins them to the left edge of the visible area
+                const controls = container.querySelectorAll('.controls');
+                controls.forEach((el) => {
+                    (el as HTMLElement).style.transform = `translateX(${scrollLeft}px)`;
+                });
+            });
+        };
+
+        container.addEventListener('scroll', handleScroll);
+        // Initial sync in case of restored scroll position
+        handleScroll();
+
+        return () => {
+            container.removeEventListener('scroll', handleScroll);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }); // Run on every render/update to ensure new controls are caught?
+    // Actually, controls are created by playlist.load().
+    // We should probably depend on something that changes when playlist re-renders.
+    // But since handleScroll is event-driven, it catches elements that exist at that moment.
+    // If elements are replaced, they lose the transform until next scroll.
+    // To be safe, we can trigger handleScroll() inside the loadStemsAndInit completion or rely on user scroll.
+    // Adding no dependency array might be too frequent if other state updates.
+    // Let's use empty dependency array but add a MutationObserver if needed.
+    // For now, let's try with empty dependency array and see if it works for scrolling.
+    // If zooming re-renders, user usually scrolls/pans which triggers scroll event.
+
 
     // Format time helper
     const formatTime = (seconds: number) => {

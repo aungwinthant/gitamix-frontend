@@ -10,69 +10,70 @@ interface SkeletonProps {
 
 export const Skeleton = ({ className, width, height, borderRadius }: SkeletonProps) => {
     return (
-        <motion.div
-            className={twMerge("bg-gray-800/50", className)}
+        <div
+            className={twMerge("relative overflow-hidden bg-gray-800/40", className)}
             style={{ width, height, borderRadius }}
-            animate={{
-                opacity: [0.5, 1, 0.5],
-            }}
-            transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-            }}
-        />
+        >
+            <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-700/20 to-transparent"
+                initial={{ x: "-100%" }}
+                animate={{ x: "100%" }}
+                transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "linear",
+                }}
+            />
+        </div>
     );
 };
 
 export const MixerSkeleton = () => {
     return (
-        <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Value Props / Header Skeleton */}
-            <div className="flex justify-between items-center mb-8">
-                <Skeleton className="h-8 w-48 rounded-lg" />
-                <div className="flex gap-4">
-                    <Skeleton className="h-8 w-24 rounded-lg" />
+        <div className="flex flex-col h-full w-full bg-gray-950 text-white animate-in fade-in duration-500">
+            {/* Toolbar Skeleton */}
+            <div className="flex flex-wrap items-center gap-4 p-4 bg-gray-900 border-b border-gray-800">
+                <div className="flex gap-1">
+                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-9 w-20 rounded" />)}
                 </div>
+                <div className="flex gap-1">
+                    {[1, 2].map(i => <Skeleton key={i} className="h-9 w-24 rounded" />)}
+                </div>
+                <Skeleton className="h-9 w-36 rounded" />
+                <Skeleton className="h-9 w-48 rounded" />
             </div>
 
-
-            {/* Waveform Tracks Skeleton */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-3xl p-4 md:p-6 mb-8 space-y-4">
-                {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="flex items-center gap-4">
-                        {/* Track Controls */}
-                        <div className="w-24 flex flex-col gap-2">
-                            <Skeleton className="h-4 w-16 rounded" />
+            {/* Tracks Skeleton - Matching Mixer Layout */}
+            <div className="flex-grow w-full overflow-hidden flex flex-col p-4 space-y-2">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="flex w-full h-[140px] bg-gray-900/40 border border-gray-800 rounded overflow-hidden">
+                        {/* Controls Left Panel */}
+                        <div className="w-[200px] flex-shrink-0 border-r border-gray-800 p-2 flex flex-col items-center justify-center gap-2 bg-gray-900">
+                            <Skeleton className="h-4 w-24 rounded mb-2" />
                             <div className="flex gap-2">
-                                <Skeleton className="h-6 w-8 rounded" />
-                                <Skeleton className="h-6 w-8 rounded" />
+                                <Skeleton className="h-6 w-12 rounded" />
+                                <Skeleton className="h-6 w-12 rounded" />
+                            </div>
+                            <div className="w-full px-2 mt-2">
+                                <Skeleton className="h-4 w-full rounded" />
+                            </div>
+                            <div className="w-full px-2">
+                                <Skeleton className="h-4 w-full rounded" />
                             </div>
                         </div>
-                        {/* Waveform */}
-                        <Skeleton className="flex-1 h-16 rounded-xl" />
+
+                        {/* Waveform Area */}
+                        <div className="flex-grow relative p-4 flex items-center">
+                            <Skeleton className="w-full h-16 rounded opacity-30" />
+                            {/* Simulate detailed waveform lines */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-10 gap-1">
+                                {[...Array(20)].map((_, j) => (
+                                    <div key={j} style={{ height: `${Math.random() * 80 + 20}%` }} className="w-2 bg-white/20 rounded-full" />
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 ))}
-            </div>
-
-            {/* Player Controls Skeleton */}
-            <div className="bg-gray-900/90 backdrop-blur border border-gray-800 rounded-2xl p-6 shadow-xl space-y-6">
-                <Skeleton className="w-full h-2 rounded-lg" />
-
-                <div className="flex flex-col md:flex-row flex-wrap items-center justify-center md:justify-between gap-4 md:gap-6">
-                    <div className="flex items-center gap-6">
-                        <Skeleton className="w-6 h-6 rounded" />
-                        <Skeleton className="w-14 h-14 rounded-full" />
-                        <Skeleton className="w-6 h-6 rounded" />
-                    </div>
-
-                    <Skeleton className="w-48 h-12 rounded-xl" />
-
-                    <div className="flex gap-2">
-                        <Skeleton className="w-24 h-10 rounded-lg" />
-                        <Skeleton className="w-24 h-10 rounded-lg" />
-                    </div>
-                </div>
             </div>
         </div>
     );

@@ -89,3 +89,18 @@ export interface RateLimitResponse {
     limit: number;
     month_year: string;
 }
+
+export interface PaginatedResponse<T> {
+    items: T[];
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+}
+
+export interface LibraryResponse {
+    jobs: JobStatusResponse[];
+    total: number;
+    page: number;
+    limit: number;
+}
