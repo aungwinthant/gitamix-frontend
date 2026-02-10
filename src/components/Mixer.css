@@ -39,10 +39,8 @@
     /* Center children horizontally */
     padding: 0 10px;
 
-    /* Sticky positioning */
-    position: sticky !important;
-    left: 0;
-    z-index: 20;
+    /* Sticky positioning handled via JS */
+    z-index: 50;
     /* Higher z-index to stay above content */
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
     /* Shadow to separate from waveform when scrolling */
