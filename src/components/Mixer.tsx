@@ -21,6 +21,13 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
     const [masterVolume, setMasterVolume] = useState(100);
     const [isAutoScroll, setIsAutoScroll] = useState(true);
 
+    // Sync auto-scroll state with playlist
+    useEffect(() => {
+        if (playlistRef.current) {
+            playlistRef.current.getEventEmitter().emit('automaticscroll', isAutoScroll);
+        }
+    }, [isAutoScroll]);
+
     useEffect(() => {
         if (!containerRef.current || playlistRef.current) return;
 
@@ -38,35 +45,41 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
                 show: true,
                 width: 200 // Width of the control panel on the left
             },
-            zoomLevels: [500, 1000, 3000, 5000]
+            zoomLevels: [500, 1000, 3000, 5000],
+            isAutomaticScroll: isAutoScroll // Attempt to set initial state if supported
         });
 
         playlistRef.current = playlist;
 
-        const trackColors = [
-            '#06b6d4', // Cyan
-            '#8b5cf6', // Violet
-            '#10b981', // Emerald
-            '#f43f5e', // Rose
-            '#f59e0b', // Amber
-        ];
+        // Ensure autoscroll is set correctly after initialization
+        playlist.getEventEmitter().emit('automaticscroll', isAutoScroll);
+
+        // Vibrant colors for stems
+        const COMPONENT_COLORS: Record<string, string> = {
+            vocals: '#FF0055', // Neon Pink
+            drums: '#00FFFF',  // Cyan
+            drums_2: '#00CED1', // Darker Cyan
+            bass: '#FFD700',   // Gold
+            other: '#BF00FF',  // Electric Purple
+            guitar: '#FF5500', // Bright Orange
+            piano: '#00FF00',  // Lime Green
+        };
+        const DEFAULT_COLOR = '#ffffff';
 
         // Load tracks
         // Pre-fetch stems as blobs to handle authentication
         const loadStemsAndInit = async () => {
             try {
-                // Filter out guitar and piano
-                const filteredStems = Object.entries(stems).filter(([name]) =>
-                    !['guitar', 'piano'].includes(name)
-                );
+                // Remove filter to include guitar and piano
+                const stemEntries = Object.entries(stems);
 
-                const trackPromises = filteredStems.map(async ([name, url], index) => {
+                const trackPromises = stemEntries.map(async ([name, url]) => {
                     // Use the api utility to fetch with auth headers if needed
                     const blobUrl = await import('../lib/api').then(m => m.fetchStemAsBlob(url));
                     return {
                         src: blobUrl,
                         name: name,
-                        waveOutlineColor: trackColors[index % trackColors.length]
+                        waveOutlineColor: COMPONENT_COLORS[name] || DEFAULT_COLOR
                     };
                 });
 
