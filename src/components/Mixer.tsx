@@ -55,14 +55,15 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
         playlist.getEventEmitter().emit('automaticscroll', isAutoScroll);
 
         // Vibrant colors for stems
+        // Vibrant colors for stems (with opacity for Landr-like feel)
         const COMPONENT_COLORS: Record<string, string> = {
-            vocals: '#FF0055', // Neon Pink
-            drums: '#00FFFF',  // Cyan
-            drums_2: '#00CED1', // Darker Cyan
+            vocals: '#FF2D55', // Soft Pink
+            drums: '#40E0D0',  // Turquoise
+            drums_2: '#00CED1', // Dark Turquoise
             bass: '#FFD700',   // Gold
-            other: '#BF00FF',  // Electric Purple
-            guitar: '#FF5500', // Bright Orange
-            piano: '#00FF00',  // Lime Green
+            other: '#A020F0',  // Purple
+            guitar: '#FF8C00', // Dark Orange
+            piano: '#32CD32',  // Lime Green
         };
         const DEFAULT_COLOR = '#ffffff';
 
