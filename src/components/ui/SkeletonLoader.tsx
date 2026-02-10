@@ -8,7 +8,7 @@ interface SkeletonProps {
     borderRadius?: string | number;
 }
 
-const Shimmer = ({ className, width, height, borderRadius }: SkeletonProps) => {
+export const Skeleton = ({ className, width, height, borderRadius }: SkeletonProps) => {
     return (
         <div
             className={twMerge("relative overflow-hidden bg-gray-800/40", className)}
@@ -34,13 +34,13 @@ export const MixerSkeleton = () => {
             {/* Toolbar Skeleton */}
             <div className="flex flex-wrap items-center gap-4 p-4 bg-gray-900 border-b border-gray-800">
                 <div className="flex gap-1">
-                    {[1, 2, 3].map(i => <Shimmer key={i} className="h-9 w-20 rounded" />)}
+                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-9 w-20 rounded" />)}
                 </div>
                 <div className="flex gap-1">
-                    {[1, 2].map(i => <Shimmer key={i} className="h-9 w-24 rounded" />)}
+                    {[1, 2].map(i => <Skeleton key={i} className="h-9 w-24 rounded" />)}
                 </div>
-                <Shimmer className="h-9 w-36 rounded" />
-                <Shimmer className="h-9 w-48 rounded" />
+                <Skeleton className="h-9 w-36 rounded" />
+                <Skeleton className="h-9 w-48 rounded" />
             </div>
 
             {/* Tracks Skeleton - Matching Mixer Layout */}
@@ -49,22 +49,22 @@ export const MixerSkeleton = () => {
                     <div key={i} className="flex w-full h-[140px] bg-gray-900/40 border border-gray-800 rounded overflow-hidden">
                         {/* Controls Left Panel */}
                         <div className="w-[200px] flex-shrink-0 border-r border-gray-800 p-2 flex flex-col items-center justify-center gap-2 bg-gray-900">
-                            <Shimmer className="h-4 w-24 rounded mb-2" />
+                            <Skeleton className="h-4 w-24 rounded mb-2" />
                             <div className="flex gap-2">
-                                <Shimmer className="h-6 w-12 rounded" />
-                                <Shimmer className="h-6 w-12 rounded" />
+                                <Skeleton className="h-6 w-12 rounded" />
+                                <Skeleton className="h-6 w-12 rounded" />
                             </div>
                             <div className="w-full px-2 mt-2">
-                                <Shimmer className="h-4 w-full rounded" />
+                                <Skeleton className="h-4 w-full rounded" />
                             </div>
                             <div className="w-full px-2">
-                                <Shimmer className="h-4 w-full rounded" />
+                                <Skeleton className="h-4 w-full rounded" />
                             </div>
                         </div>
 
                         {/* Waveform Area */}
                         <div className="flex-grow relative p-4 flex items-center">
-                            <Shimmer className="w-full h-16 rounded opacity-30" />
+                            <Skeleton className="w-full h-16 rounded opacity-30" />
                             {/* Simulate detailed waveform lines */}
                             <div className="absolute inset-0 flex items-center justify-center opacity-10 gap-1">
                                 {[...Array(20)].map((_, j) => (
