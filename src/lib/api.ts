@@ -120,10 +120,25 @@ export const api = {
     },
 
     getLibrary: async (limit: number = 20, offset: number = 0): Promise<JobStatusResponse[]> => {
-        const response = await client.get<JobStatusResponse[]>('/library', {
+        const response = await client.get<any>('/library', {
             params: { limit, offset }
         });
-        return response.data;
+
+        // Handle both direct array and paginated response formats
+        if (Array.isArray(response.data)) {
+            return response.data;
+        }
+
+        // Check for common pagination wrappers
+        if (response.data && Array.isArray(response.data.jobs)) {
+            return response.data.jobs;
+        }
+        if (response.data && Array.isArray(response.data.items)) {
+            return response.data.items;
+        }
+
+        console.warn('Unexpected library response format:', response.data);
+        return [];
     },
 
     resumeJob: async (jobId: string): Promise<void> => {
