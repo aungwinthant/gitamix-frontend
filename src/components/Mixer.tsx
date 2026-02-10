@@ -56,14 +56,15 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
 
         // Vibrant colors for stems
         // Vibrant colors for stems (with opacity for Landr-like feel)
+        // Retro-themed colors for stems
         const COMPONENT_COLORS: Record<string, string> = {
-            vocals: '#FF2D55', // Soft Pink
-            drums: '#40E0D0',  // Turquoise
-            drums_2: '#00CED1', // Dark Turquoise
-            bass: '#FFD700',   // Gold
-            other: '#A020F0',  // Purple
-            guitar: '#FF8C00', // Dark Orange
-            piano: '#32CD32',  // Lime Green
+            vocals: '#FF6B6B', // Retro Red/Coral
+            drums: '#4ECDC4',  // Retro Teal
+            drums_2: '#45B7D1', // Retro Blue
+            bass: '#FFE66D',   // Retro Yellow
+            other: '#9D65C9',  // Retro Purple
+            guitar: '#FF9F43', // Retro Orange
+            piano: '#88D8B0',  // Retro Green
         };
         const DEFAULT_COLOR = '#ffffff';
 
