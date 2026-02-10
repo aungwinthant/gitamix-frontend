@@ -13,6 +13,7 @@ declare module 'waveform-playlist' {
             show?: boolean;
             width?: number;
         };
+        isAutomaticScroll?: boolean;
         zoomLevels?: number[];
     }
 
