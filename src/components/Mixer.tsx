@@ -109,7 +109,9 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
 
         // Clean up on unmount
         return () => {
-            // playlist.destroy() if available or just let ref cleanup
+            if (playlist) {
+                playlist.stop();
+            }
         };
 
     }, [stems, metadata]);
