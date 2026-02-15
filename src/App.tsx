@@ -45,6 +45,21 @@ function Home() {
     }
   }, [searchParams, loadJob, setSearchParams]);
 
+  // Handle 401 Unauthorized errors during upload
+  const { logout } = useAuth();
+  useEffect(() => {
+    if (uploadError) {
+      // Check if it's a 401 error
+      // axios errors usually have response.status
+      const error = uploadError as any;
+      if (error.response?.status === 401) {
+        console.log('Session expired or unauthorized, logging out...');
+        logout();
+        setShowLoginModal(true);
+      }
+    }
+  }, [uploadError, logout]);
+
   // Determine current view
   const showUpload = status === 'idle' && !isUploading;
   const showProcessing = isUploading || ['pending', 'uploading', 'separating', 'failed'].includes(status);
