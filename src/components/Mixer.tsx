@@ -46,6 +46,7 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
                 width: 200 // Width of the control panel on the left
             },
             zoomLevels: [500, 1000, 3000, 5000],
+            timescale: true,
             isAutomaticScroll: isAutoScroll // Attempt to set initial state if supported
         });
 
@@ -54,19 +55,9 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
         // Ensure autoscroll is set correctly after initialization
         playlist.getEventEmitter().emit('automaticscroll', isAutoScroll);
 
-        // Vibrant colors for stems
-        // Vibrant colors for stems (with opacity for Landr-like feel)
-        // Retro-themed colors for stems
-        const COMPONENT_COLORS: Record<string, string> = {
-            vocals: '#FF6B6B', // Retro Red/Coral
-            drums: '#4ECDC4',  // Retro Teal
-            drums_2: '#45B7D1', // Retro Blue
-            bass: '#FFE66D',   // Retro Yellow
-            other: '#9D65C9',  // Retro Purple
-            guitar: '#FF9F43', // Retro Orange
-            piano: '#88D8B0',  // Retro Green
-        };
-        const DEFAULT_COLOR = '#ffffff';
+        // Grey waveOutlineColor for background (non-peak area)
+        // The actual wave peaks show the .channel background (set per-stem in CSS)
+        const WAVE_BG_COLOR = '#2a2a3a';
 
         // Load tracks
         // Pre-fetch stems as blobs to handle authentication
@@ -81,7 +72,8 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
                     return {
                         src: blobUrl,
                         name: name,
-                        waveOutlineColor: COMPONENT_COLORS[name] || DEFAULT_COLOR
+                        waveOutlineColor: WAVE_BG_COLOR,
+                        customClass: `stem-${name}`
                     };
                 });
 
@@ -112,32 +104,83 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
             if (playlist) {
                 playlist.stop();
             }
+            if (containerRef.current) {
+                containerRef.current.removeEventListener('scroll', handleScroll);
+            }
+            cancelAnimationFrame(animationFrameId);
         };
 
     }, [stems, metadata]);
 
-    // Handle sticky controls via JS transform to work around waveform-playlist DOM structure
+    // Robust class injection using MutationObserver
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
 
-        let animationFrameId: number;
-
-        const handleScroll = () => {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(() => {
-                const scrollLeft = container.scrollLeft;
-                // Select all controls within this container and apply transform
-                // This effectively pins them to the left edge of the visible area
-                const controls = container.querySelectorAll('.controls');
-                controls.forEach((el) => {
-                    (el as HTMLElement).style.transform = `translateX(${scrollLeft}px)`;
-                });
+        const applyTrackClasses = () => {
+            const wrappers = container.querySelectorAll('.channel-wrapper');
+            wrappers.forEach((wrapper) => {
+                const header = wrapper.querySelector('.controls header');
+                if (header) {
+                    const trackName = header.textContent?.trim().toLowerCase() || '';
+                    if (trackName) {
+                        // Avoid adding duplicates if already present (though classList.add handles this)
+                        wrapper.classList.add(`track-${trackName}`);
+                        header.classList.add('track-label', trackName);
+                    }
+                }
             });
         };
 
+        const observer = new MutationObserver((mutations) => {
+            let shouldUpdate = false;
+            for (const mutation of mutations) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    shouldUpdate = true;
+                    break;
+                }
+            }
+
+            if (shouldUpdate) {
+                applyTrackClasses();
+            }
+        });
+
+        observer.observe(container, {
+            childList: true,
+            subtree: true
+        });
+
+        // Initial application
+        applyTrackClasses();
+
+        return () => observer.disconnect();
+    }, []);
+
+    // Handle sticky controls via JS transform to work around waveform-playlist DOM structure
+    // Defined outside to be accessible in cleanup (though refined above)
+    let animationFrameId: number;
+    const handleScroll = () => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(() => {
+            const scrollLeft = container.scrollLeft;
+            // Select all controls within this container and apply transform
+            const controls = container.querySelectorAll('.controls');
+            controls.forEach((el) => {
+                (el as HTMLElement).style.transform = `translateX(${scrollLeft}px)`;
+            });
+        });
+    };
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
         container.addEventListener('scroll', handleScroll);
-        // Initial sync in case of restored scroll position
+        // Initial sync
         handleScroll();
 
         return () => {
@@ -172,6 +215,24 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
     const handleStop = () => playlistRef.current && playlistRef.current.stop();
     const handleZoomIn = () => playlistRef.current && playlistRef.current.getEventEmitter().emit('zoomin');
     const handleZoomOut = () => playlistRef.current && playlistRef.current.getEventEmitter().emit('zoomout');
+
+    // Spacebar play/pause toggle
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
+                e.preventDefault();
+                if (playlistRef.current) {
+                    if (playlistRef.current.isPlaying()) {
+                        playlistRef.current.pause();
+                    } else {
+                        playlistRef.current.play();
+                    }
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     return (
         <div className="flex flex-col h-full w-full bg-gray-950 text-white">
@@ -234,7 +295,7 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
             {/* Playlist Container - Height managed to fill remaining space */}
             <div
                 ref={containerRef}
-                className="playlist-container w-full flex-grow overflow-auto border border-gray-800 rounded-lg bg-gray-900 shadow-inner relative"
+                className="playlist-container w-full flex-grow overflow-auto bg-gray-900 shadow-inner relative"
             >
                 {/* Background texture or pattern could go here if supported via CSS on container */}
             </div>
