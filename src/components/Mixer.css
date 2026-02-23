@@ -8,44 +8,109 @@
     /* Ensure playlist fits in scrolling container */
 }
 
+/* Timescale ruler (above waveforms) */
+.playlist .playlist-time-scale {
+    background-color: #1a1a2e;
+    color: #9CA3AF;
+    font-size: 11px;
+    height: 30px;
+}
+
 .playlist .channel-wrapper {
-    background-color: rgb(17 24 39) !important;
-    /* gray-900 */
-    border-bottom: 1px solid rgb(31 41 55);
-    /* gray-800 */
+    background-color: #2a2a3a !important;
+    /* Greyish background for all tracks */
+    border-bottom: 1px solid rgb(30 30 30);
+    /* Subtle border */
     padding: 0 !important;
-    /* Remove vertical padding that might cause gaps */
-    display: flex;
-    /* Ensure flex layout for sticky behavior */
+    display: flex !important;
+    flex-direction: row !important;
+    /* Side-by-side: controls on left, waveform on right */
     margin: 0 !important;
-    /* Remove any default margins including margin-left */
+    /* Remove all margins including the library's margin-left offset */
 }
 
+/* Waveform fills remaining space after controls */
+.playlist .waveform {
+    flex: 1 1 0% !important;
+    min-width: 0;
+    /* Allow shrinking below content size for proper flex behavior */
+}
+
+/* Default channel background (fallback) */
 .playlist .channel {
-    background-color: transparent !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-/* Controls (Left panel) */
+/* Per-stem glassy wave colors (shows through peaks as the wave shape) */
+.playlist .stem-vocals .channel {
+    background-color: rgba(168, 85, 247, 0.35) !important;
+}
+
+.playlist .stem-drums .channel {
+    background-color: rgba(255, 149, 0, 0.35) !important;
+}
+
+.playlist .stem-bass .channel {
+    background-color: rgba(79, 195, 247, 0.35) !important;
+}
+
+.playlist .stem-other .channel {
+    background-color: rgba(38, 229, 214, 0.35) !important;
+}
+
+.playlist .stem-guitar .channel {
+    background-color: rgba(255, 215, 0, 0.35) !important;
+}
+
+.playlist .stem-piano .channel {
+    background-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+/* Per-stem playback progress overlay colors — highlights completed portion */
+.playlist .stem-vocals .channel-progress {
+    background-color: rgba(168, 85, 247, 0.45) !important;
+}
+
+.playlist .stem-drums .channel-progress {
+    background-color: rgba(255, 149, 0, 0.45) !important;
+}
+
+.playlist .stem-bass .channel-progress {
+    background-color: rgba(79, 195, 247, 0.45) !important;
+}
+
+.playlist .stem-other .channel-progress {
+    background-color: rgba(38, 229, 214, 0.45) !important;
+}
+
+.playlist .stem-guitar .channel-progress {
+    background-color: rgba(255, 215, 0, 0.45) !important;
+}
+
+.playlist .stem-piano .channel-progress {
+    background-color: rgba(239, 68, 68, 0.45) !important;
+}
+
+/* Controls (Left panel) - Override absolute positioning to flex child */
 .playlist .controls {
-    background-color: rgb(17 24 39) !important;
-    /* gray-900 */
-    border-right: 1px solid rgb(31 41 55);
-    /* gray-800 */
+    position: static !important;
+    /* Override library's position:absolute so flex layout works */
+    width: 200px !important;
+    min-width: 200px !important;
+    flex-shrink: 0 !important;
+    /* Fixed width, never shrink */
+    background-color: rgb(20 20 20) !important;
+    border-right: 1px solid rgb(40 40 40);
     color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* Center children horizontally */
     padding: 0 10px;
-
-    /* Sticky positioning handled via JS */
+    box-sizing: border-box;
     z-index: 50;
-    /* Higher z-index to stay above content */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-    /* Shadow to separate from waveform when scrolling */
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.8);
     margin: 0 !important;
-    /* Ensure no margin */
 }
 
 .playlist .controls header {
@@ -296,6 +361,78 @@
     /* Firefox */
 }
 
-.playlist-container::-webkit-scrollbar {
-    display: none;
+
+/* === User Provided Custom Styles === */
+
+/* Glass effect on track containers - Increased specificity and Added Transparency */
+.playlist .channel-wrapper.track-vocals,
+.playlist .channel-wrapper.track-drums,
+.playlist .channel-wrapper.track-bass,
+.playlist .channel-wrapper.track-other,
+.playlist .channel-wrapper.track-guitar,
+.playlist .channel-wrapper.stem-vocals,
+.playlist .channel-wrapper.stem-drums,
+.playlist .channel-wrapper.stem-bass,
+.playlist .channel-wrapper.stem-other,
+.playlist .channel-wrapper.stem-guitar,
+.playlist .channel-wrapper.stem-piano {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+    margin-bottom: 0 !important;
+    overflow: hidden;
+    /* Round corners properly */
+    background-color: rgba(42, 42, 58, 0.85) !important;
+    /* Greyish semi-transparent background for glass effect */
+}
+
+/* Track labels with matching colors */
+.track-label.vocals {
+    color: #ff1a8c !important;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.track-label.drums {
+    color: #ff9500 !important;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.track-label.bass {
+    color: #4fc3f7 !important;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.track-label.other {
+    color: #26e5d6 !important;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.track-label.guitar {
+    color: #ffd700 !important;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* Volume slider styling */
+.playlist .controls input[type="range"] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 4px;
+    /* height: 100px; Remove height as these are horizontal typically? Or user meant vertical? Standard is horizontal here */
+}
+
+.playlist .controls input[type="range"]::-webkit-slider-thumb {
+    background: #ffffff !important;
+    border-radius: 50% !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
 }

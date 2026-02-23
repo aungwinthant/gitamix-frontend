@@ -69,9 +69,9 @@ export const MixerPage = () => {
     return (
         <>
             <Header showNewUploadButton={true} onNewUpload={() => navigate('/')} />
-            <main className="flex-1 flex flex-col items-center justify-center">
-                <div className="container mx-auto px-4 py-8">
-                    <div className="mb-8 flex items-center justify-between">
+            <main className="flex-1 flex flex-col">
+                <div className="container mx-auto px-4 pt-6 pb-4">
+                    <div className="mb-4 flex items-center justify-between">
                         <button
                             onClick={() => navigate('/library')}
                             className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1"
@@ -80,7 +80,7 @@ export const MixerPage = () => {
                         </button>
                     </div>
 
-                    <div className="mb-6 text-center">
+                    <div className="mb-4 text-center">
                         <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
                             {result.metadata?.title || 'Untitled Track'}
                         </h1>
@@ -88,9 +88,10 @@ export const MixerPage = () => {
                             <p className="text-gray-400 text-lg">{result.metadata.artist}</p>
                         )}
                     </div>
-
-                    <Mixer key={jobId} stems={result.stems} jobId={jobId!} metadata={result.metadata} waveforms={result.waveforms} onReset={() => navigate('/')} />
                 </div>
+
+                {/* Mixer goes full-width, no container constraints */}
+                <Mixer key={jobId} stems={result.stems} jobId={jobId!} metadata={result.metadata} waveforms={result.waveforms} onReset={() => navigate('/')} />
             </main>
         </>
     );

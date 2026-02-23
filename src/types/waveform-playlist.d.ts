@@ -14,6 +14,7 @@ declare module 'waveform-playlist' {
             width?: number;
         };
         isAutomaticScroll?: boolean;
+        timescale?: boolean;
         zoomLevels?: number[];
     }
 
