@@ -4,8 +4,86 @@
     margin: 0;
     font-family: inherit;
     background-color: transparent !important;
-    min-width: min-content;
-    /* Ensure playlist fits in scrolling container */
+    height: 100%;
+    /* Fill the playlist-container vertically */
+}
+
+/* Outer container needs height for the library to fill correctly */
+.playlist-container {
+    height: 100%;
+}
+
+
+.playlist .playlist-tracks {
+    background: #050510 !important;
+    height: 100%;
+    overflow-y: hidden !important;
+    /* Remove redundant vertical scroll */
+}
+
+.playlist .channel-wrapper {
+    position: relative;
+    display: flex !important;
+    /* Use flex to align controls and waveform */
+    margin-left: 0 !important;
+    /* Remove library default 200px gap */
+    background-color: #0f0f1a !important;
+    border-bottom: 1px solid rgb(30 30 30);
+    overflow: visible !important;
+    height: 140px;
+    /* Match waveHeight */
+}
+
+.playlist .controls {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 100 !important;
+    width: 200px !important;
+    min-width: 200px !important;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+    margin: 0 !important;
+    height: 100% !important;
+    background-color: rgb(15 15 25) !important;
+    flex-shrink: 0 !important;
+}
+
+.playlist .waveform {
+    position: relative;
+    height: 100%;
+    flex-grow: 1;
+    /* Take remaining space */
+}
+
+/* Vibrant Stem Backgrounds */
+.playlist .stem-vocals .channel {
+    background-color: rgba(168, 85, 247, 0.15) !important;
+}
+
+.playlist .stem-drums .channel {
+    background-color: rgba(255, 149, 0, 0.15) !important;
+}
+
+.playlist .stem-bass .channel {
+    background-color: rgba(79, 195, 247, 0.15) !important;
+}
+
+.playlist .stem-other .channel {
+    background-color: rgba(38, 229, 214, 0.15) !important;
+}
+
+.playlist .stem-guitar .channel {
+    background-color: rgba(255, 215, 0, 0.15) !important;
+}
+
+.playlist .stem-piano .channel {
+    background-color: rgba(239, 68, 68, 0.15) !important;
 }
 
 /* Timescale ruler (above waveforms) */
@@ -14,104 +92,15 @@
     color: #9CA3AF;
     font-size: 11px;
     height: 30px;
+    margin-left: 0 !important;
+    /* Library handles its own internal 200px pad */
 }
 
-.playlist .channel-wrapper {
-    background-color: #2a2a3a !important;
-    /* Greyish background for all tracks */
-    border-bottom: 1px solid rgb(30 30 30);
-    /* Subtle border */
-    padding: 0 !important;
-    display: flex !important;
-    flex-direction: row !important;
-    /* Side-by-side: controls on left, waveform on right */
-    margin: 0 !important;
-    /* Remove all margins including the library's margin-left offset */
+/* Let the library handle cursor and markers natively—no manual margins */
+.playlist .cursor {
+    margin-left: 0 !important;
 }
 
-/* Waveform fills remaining space after controls */
-.playlist .waveform {
-    flex: 1 1 0% !important;
-    min-width: 0;
-    /* Allow shrinking below content size for proper flex behavior */
-}
-
-/* Default channel background (fallback) */
-.playlist .channel {
-    background-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-/* Per-stem glassy wave colors (shows through peaks as the wave shape) */
-.playlist .stem-vocals .channel {
-    background-color: rgba(168, 85, 247, 0.35) !important;
-}
-
-.playlist .stem-drums .channel {
-    background-color: rgba(255, 149, 0, 0.35) !important;
-}
-
-.playlist .stem-bass .channel {
-    background-color: rgba(79, 195, 247, 0.35) !important;
-}
-
-.playlist .stem-other .channel {
-    background-color: rgba(38, 229, 214, 0.35) !important;
-}
-
-.playlist .stem-guitar .channel {
-    background-color: rgba(255, 215, 0, 0.35) !important;
-}
-
-.playlist .stem-piano .channel {
-    background-color: rgba(239, 68, 68, 0.35) !important;
-}
-
-/* Per-stem playback progress overlay colors — highlights completed portion */
-.playlist .stem-vocals .channel-progress {
-    background-color: rgba(168, 85, 247, 0.45) !important;
-}
-
-.playlist .stem-drums .channel-progress {
-    background-color: rgba(255, 149, 0, 0.45) !important;
-}
-
-.playlist .stem-bass .channel-progress {
-    background-color: rgba(79, 195, 247, 0.45) !important;
-}
-
-.playlist .stem-other .channel-progress {
-    background-color: rgba(38, 229, 214, 0.45) !important;
-}
-
-.playlist .stem-guitar .channel-progress {
-    background-color: rgba(255, 215, 0, 0.45) !important;
-}
-
-.playlist .stem-piano .channel-progress {
-    background-color: rgba(239, 68, 68, 0.45) !important;
-}
-
-/* Controls (Left panel) - Override absolute positioning to flex child */
-.playlist .controls {
-    position: static !important;
-    /* Override library's position:absolute so flex layout works */
-    width: 200px !important;
-    min-width: 200px !important;
-    flex-shrink: 0 !important;
-    /* Fixed width, never shrink */
-    background-color: rgb(20 20 20) !important;
-    border-right: 1px solid rgb(40 40 40);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 0 10px;
-    box-sizing: border-box;
-    z-index: 50;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.8);
-    margin: 0 !important;
-}
 
 .playlist .controls header {
     background-color: transparent;
@@ -283,6 +272,7 @@
     background: transparent;
     height: 24px;
     -webkit-appearance: none;
+    appearance: none;
     margin: 0 8px;
     flex-grow: 1;
     cursor: pointer;
@@ -353,13 +343,12 @@
     color: rgb(156 163 175);
 }
 
-/* Hide Scrollbar but allow scrolling */
-.playlist-container {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
+/* Ensure scrollbars are visible when needed */
+.playlist-tracks {
+    overflow-x: auto !important;
 }
+
+/* User styles... */
 
 
 /* === User Provided Custom Styles === */
