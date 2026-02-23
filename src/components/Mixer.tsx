@@ -12,14 +12,14 @@ interface MixerProps {
     onReset: () => void;
 }
 
-// Stem-specific colors for waveforms
+// Uniform soft peak color for all stems
 const STEM_COLORS: Record<string, string> = {
-    vocals: '#a855f7', // purple
-    drums: '#ff9500',  // orange
-    bass: '#4fc3f7',   // light blue
-    other: '#26e5d6',  // teal
-    guitar: '#ffd700', // gold
-    piano: '#ef4444',  // red
+    vocals: '#cbd5e1',
+    drums: '#cbd5e1',
+    bass: '#cbd5e1',
+    other: '#cbd5e1',
+    guitar: '#cbd5e1',
+    piano: '#cbd5e1',
 };
 
 export const Mixer = ({ stems, metadata }: MixerProps) => {
@@ -42,20 +42,20 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
         if (!containerRef.current || playlistRef.current) return;
 
         const playlist = Playlist({
-            samplesPerPixel: 1000,
+            samplesPerPixel: 3000,
             waveHeight: 140,
             container: containerRef.current,
             state: 'cursor',
             colors: {
-                waveOutlineColor: 'white', // Fallback
-                timeColor: '#9CA3AF',
+                waveOutlineColor: 'white',
+                timeColor: 'white',
                 fadeColor: 'black'
             },
             controls: {
                 show: true,
                 width: 200
             },
-            zoomLevels: [500, 1000, 3000, 5000],
+            zoomLevels: [1000, 3000, 5000, 10000],
             timescale: true,
             isAutomaticScroll: isAutoScroll
         });

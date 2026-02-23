@@ -15,7 +15,8 @@
 
 
 .playlist .playlist-tracks {
-    background: #050510 !important;
+    background: #09091b !important;
+    /* Darker navy background */
     height: 100%;
     overflow-y: hidden !important;
     /* Remove redundant vertical scroll */
@@ -32,6 +33,9 @@
     overflow: visible !important;
     height: 140px;
     /* Match waveHeight */
+    width: max-content !important;
+    /* Ensure wrapper spans full waveform width for sticky to work */
+    min-width: 100%;
 }
 
 .playlist .controls {
@@ -61,44 +65,37 @@
     /* Take remaining space */
 }
 
-/* Vibrant Stem Backgrounds */
-.playlist .stem-vocals .channel {
-    background-color: rgba(168, 85, 247, 0.15) !important;
+/* Vibrant Stem Progress (Red for Played, Blue for Unplayed) */
+.playlist .channel {
+    background-color: #1e293b !important;
+    /* Dark Blue-Grey unplayed area */
 }
 
-.playlist .stem-drums .channel {
-    background-color: rgba(255, 149, 0, 0.15) !important;
-}
-
-.playlist .stem-bass .channel {
-    background-color: rgba(79, 195, 247, 0.15) !important;
-}
-
-.playlist .stem-other .channel {
-    background-color: rgba(38, 229, 214, 0.15) !important;
-}
-
-.playlist .stem-guitar .channel {
-    background-color: rgba(255, 215, 0, 0.15) !important;
-}
-
-.playlist .stem-piano .channel {
-    background-color: rgba(239, 68, 68, 0.15) !important;
+.playlist .channel-progress {
+    background-color: #d9534f !important;
+    /* Red played progress */
 }
 
 /* Timescale ruler (above waveforms) */
 .playlist .playlist-time-scale {
-    background-color: #1a1a2e;
-    color: #9CA3AF;
+    background-color: #1a2a3a;
+    color: #ffffff;
     font-size: 11px;
     height: 30px;
     margin-left: 0 !important;
-    /* Library handles its own internal 200px pad */
 }
 
-/* Let the library handle cursor and markers natively—no manual margins */
+/* Red Playhead line with Track-Scale Triangles */
 .playlist .cursor {
+    background-color: #fbbf24 !important;
+    /* Yellow-400 */
+    width: 2px !important;
     margin-left: 0 !important;
+    overflow: visible !important;
+}
+
+.playlist .cursor:after {
+    display: none !important;
 }
 
 
@@ -373,8 +370,8 @@
     margin-bottom: 0 !important;
     overflow: hidden;
     /* Round corners properly */
-    background-color: rgba(42, 42, 58, 0.85) !important;
-    /* Greyish semi-transparent background for glass effect */
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    /* Deeper blue semi-transparent background for glass effect */
 }
 
 /* Track labels with matching colors */
