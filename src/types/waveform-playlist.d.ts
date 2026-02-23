@@ -39,6 +39,11 @@ declare module 'waveform-playlist' {
         play(): void;
         pause(): void;
         stop(): void;
+        // Runtime properties used for manual autoscroll
+        isAutomaticScroll: boolean;
+        sampleRate: number;
+        samplesPerPixel: number;
+        controls: { show: boolean; width: number };
     }
 
     function Playlist(options: PlaylistOptions): PlaylistInstance;

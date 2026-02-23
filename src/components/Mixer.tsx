@@ -12,6 +12,16 @@ interface MixerProps {
     onReset: () => void;
 }
 
+// Stem-specific colors for waveforms
+const STEM_COLORS: Record<string, string> = {
+    vocals: '#a855f7', // purple
+    drums: '#ff9500',  // orange
+    bass: '#4fc3f7',   // light blue
+    other: '#26e5d6',  // teal
+    guitar: '#ffd700', // gold
+    piano: '#ef4444',  // red
+};
+
 export const Mixer = ({ stems, metadata }: MixerProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const playlistRef = useRef<any>(null);
@@ -33,46 +43,37 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
 
         const playlist = Playlist({
             samplesPerPixel: 1000,
-            waveHeight: 140, // Increased to fit controls with padding
+            waveHeight: 140,
             container: containerRef.current,
             state: 'cursor',
             colors: {
-                waveOutlineColor: 'transparent',
+                waveOutlineColor: 'white', // Fallback
                 timeColor: '#9CA3AF',
                 fadeColor: 'black'
             },
             controls: {
                 show: true,
-                width: 200 // Width of the control panel on the left
+                width: 200
             },
             zoomLevels: [500, 1000, 3000, 5000],
             timescale: true,
-            isAutomaticScroll: isAutoScroll // Attempt to set initial state if supported
+            isAutomaticScroll: isAutoScroll
         });
 
         playlistRef.current = playlist;
 
-        // Ensure autoscroll is set correctly after initialization
         playlist.getEventEmitter().emit('automaticscroll', isAutoScroll);
 
-        // Grey waveOutlineColor for background (non-peak area)
-        // The actual wave peaks show the .channel background (set per-stem in CSS)
-        const WAVE_BG_COLOR = '#2a2a3a';
-
-        // Load tracks
-        // Pre-fetch stems as blobs to handle authentication
         const loadStemsAndInit = async () => {
             try {
-                // Remove filter to include guitar and piano
                 const stemEntries = Object.entries(stems);
 
                 const trackPromises = stemEntries.map(async ([name, url]) => {
-                    // Use the api utility to fetch with auth headers if needed
                     const blobUrl = await import('../lib/api').then(m => m.fetchStemAsBlob(url));
                     return {
                         src: blobUrl,
                         name: name,
-                        waveOutlineColor: WAVE_BG_COLOR,
+                        waveOutlineColor: STEM_COLORS[name] || '#ffffff',
                         customClass: `stem-${name}`
                     };
                 });
@@ -82,11 +83,40 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
                 playlist.load(loadedTracks).then(() => {
                     console.log('Playlist loaded');
                     playlist.getEventEmitter().emit('mastervolumechange', 100);
+                    updateTrackWidth();
                 });
             } catch (error) {
                 console.error("Failed to load stems:", error);
             }
         };
+
+        const styleTag = document.createElement('style');
+        styleTag.id = 'mixer-scrolling-fix';
+        document.head.appendChild(styleTag);
+
+        const updateTrackWidth = () => {
+            if (!playlist) return;
+            const p = playlist as any;
+            const spp = p.samplesPerPixel || 1000;
+            const sr = p.sampleRate || 44100;
+            const dur = p.duration || 0;
+
+            const wavePixels = Math.ceil(dur * sr / spp);
+
+            // The CSS now handles Flex/Sticky layout. 
+            // We only need to ensure the waveform has explicit pixels for scroll overflow.
+            styleTag.textContent = `
+                .playlist .waveform { 
+                    width: ${wavePixels}px !important; 
+                }
+            `;
+            console.log(`[Mixer] Waveform width set: ${wavePixels}px`);
+        };
+
+        const ee = playlist.getEventEmitter();
+
+        ee.on('zoomin', () => setTimeout(updateTrackWidth, 50));
+        ee.on('zoomout', () => setTimeout(updateTrackWidth, 50));
 
         loadStemsAndInit();
 
@@ -94,109 +124,16 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
             console.log(`Loaded stems for ${metadata.title} by ${metadata.artist}`);
         }
 
-        const ee = playlist.getEventEmitter();
         ee.on('timeupdate', (time: number) => {
             setCurrentTime(formatTime(time));
         });
 
-        // Clean up on unmount
         return () => {
-            if (playlist) {
-                playlist.stop();
-            }
-            if (containerRef.current) {
-                containerRef.current.removeEventListener('scroll', handleScroll);
-            }
-            cancelAnimationFrame(animationFrameId);
+            if (playlist) playlist.stop();
+            styleTag.remove();
         };
-
     }, [stems, metadata]);
 
-    // Robust class injection using MutationObserver
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        const applyTrackClasses = () => {
-            const wrappers = container.querySelectorAll('.channel-wrapper');
-            wrappers.forEach((wrapper) => {
-                const header = wrapper.querySelector('.controls header');
-                if (header) {
-                    const trackName = header.textContent?.trim().toLowerCase() || '';
-                    if (trackName) {
-                        // Avoid adding duplicates if already present (though classList.add handles this)
-                        wrapper.classList.add(`track-${trackName}`);
-                        header.classList.add('track-label', trackName);
-                    }
-                }
-            });
-        };
-
-        const observer = new MutationObserver((mutations) => {
-            let shouldUpdate = false;
-            for (const mutation of mutations) {
-                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    shouldUpdate = true;
-                    break;
-                }
-            }
-
-            if (shouldUpdate) {
-                applyTrackClasses();
-            }
-        });
-
-        observer.observe(container, {
-            childList: true,
-            subtree: true
-        });
-
-        // Initial application
-        applyTrackClasses();
-
-        return () => observer.disconnect();
-    }, []);
-
-    // Handle sticky controls via JS transform to work around waveform-playlist DOM structure
-    // Defined outside to be accessible in cleanup (though refined above)
-    let animationFrameId: number;
-    const handleScroll = () => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = requestAnimationFrame(() => {
-            const scrollLeft = container.scrollLeft;
-            // Select all controls within this container and apply transform
-            const controls = container.querySelectorAll('.controls');
-            controls.forEach((el) => {
-                (el as HTMLElement).style.transform = `translateX(${scrollLeft}px)`;
-            });
-        });
-    };
-
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        container.addEventListener('scroll', handleScroll);
-        // Initial sync
-        handleScroll();
-
-        return () => {
-            container.removeEventListener('scroll', handleScroll);
-            cancelAnimationFrame(animationFrameId);
-        };
-    }); // Run on every render/update to ensure new controls are caught?
-    // Actually, controls are created by playlist.load().
-    // We should probably depend on something that changes when playlist re-renders.
-    // But since handleScroll is event-driven, it catches elements that exist at that moment.
-    // If elements are replaced, they lose the transform until next scroll.
-    // To be safe, we can trigger handleScroll() inside the loadStemsAndInit completion or rely on user scroll.
-    // Adding no dependency array might be too frequent if other state updates.
-    // Let's use empty dependency array but add a MutationObserver if needed.
-    // For now, let's try with empty dependency array and see if it works for scrolling.
-    // If zooming re-renders, user usually scrolls/pans which triggers scroll event.
 
 
     // Format time helper
@@ -295,7 +232,7 @@ export const Mixer = ({ stems, metadata }: MixerProps) => {
             {/* Playlist Container - Height managed to fill remaining space */}
             <div
                 ref={containerRef}
-                className="playlist-container w-full flex-grow overflow-auto bg-gray-900 shadow-inner relative"
+                className="playlist-container w-full flex-grow overflow-hidden bg-gray-900 shadow-inner relative"
             >
                 {/* Background texture or pattern could go here if supported via CSS on container */}
             </div>
