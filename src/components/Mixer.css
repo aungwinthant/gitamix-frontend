@@ -82,20 +82,23 @@
     color: #ffffff;
     font-size: 11px;
     height: 30px;
-    margin-left: 0 !important;
+    margin-left: 200px !important;
 }
 
 /* Red Playhead line with Track-Scale Triangles */
 .playlist .cursor {
     background-color: #fbbf24 !important;
-    /* Yellow-400 */
+    z-index: 100 !important;
     width: 2px !important;
-    margin-left: 0 !important;
-    overflow: visible !important;
+    background: #fbbf24 !important;
+    /* yellow-400 */
 }
 
-.playlist .cursor:after {
-    display: none !important;
+.playlist .selection.point {
+    z-index: 99 !important;
+    width: 2px !important;
+    background: #ef4444 !important;
+    /* red-500 */
 }
 
 
@@ -126,10 +129,77 @@
     justify-content: center;
     margin-bottom: 10px;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-/* Hide annoying minimize/close buttons in track header if any */
-.playlist .controls .track-header button {
+/* Drag Handle Icon */
+.playlist .controls .track-header::before {
+    content: "⋮⋮";
+    cursor: grab;
+    color: rgb(156 163 175);
+    font-size: 1.2rem;
+    font-weight: bold;
+    line-height: 1;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.playlist .controls .track-header:hover::before {
+    opacity: 1;
+}
+
+.playlist .channel-wrapper.dragging {
+    opacity: 0.4;
+    border: 2px dashed #fbbf24 !important;
+}
+
+.playlist .channel-wrapper.drag-over {
+    border-top: 4px solid #fbbf24 !important;
+}
+
+/* Delete Button (X) Styling */
+.playlist .controls .track-remove {
+    background-color: rgb(220 38 38) !important;
+    /* red-600 */
+    border: none !important;
+    border-radius: 4px !important;
+    color: white !important;
+    padding: 2px 6px !important;
+    font-size: 0.7rem !important;
+    line-height: 1 !important;
+    margin-right: 8px !important;
+    opacity: 0.7;
+    transition: opacity 0.2s, transform 0.2s;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.playlist .controls .track-remove:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.playlist .controls .track-remove i {
+    font-size: 0.8rem;
+    pointer-events: none;
+}
+
+/* HIDE Delete Button for Stems but show for others (Recordings) */
+.playlist .channel-wrapper.stem-vocals .track-remove,
+.playlist .channel-wrapper.stem-drums .track-remove,
+.playlist .channel-wrapper.stem-bass .track-remove,
+.playlist .channel-wrapper.stem-other .track-remove,
+.playlist .channel-wrapper.stem-guitar .track-remove,
+.playlist .channel-wrapper.stem-piano .track-remove {
+    display: none !important;
+}
+
+/* Hide annoying minimize buttons in track header but keep remove */
+.playlist .controls .track-header button:not(.track-remove) {
     display: none !important;
 }
 

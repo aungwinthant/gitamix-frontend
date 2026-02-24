@@ -1,17 +1,19 @@
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, AlertCircle } from 'lucide-react';
+import { Upload, AlertCircle, Youtube, Zap } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
 interface UploadViewProps {
     onUpload: (file: File) => void;
+    onYoutubeUrlSubmit: (url: string) => void;
     isUploading: boolean;
     error: Error | null;
     isAuthenticated: boolean;
     onLoginRequest: () => void;
 }
 
-export const UploadView = ({ onUpload, isUploading, error, isAuthenticated, onLoginRequest }: UploadViewProps) => {
+export const UploadView = ({ onUpload, onYoutubeUrlSubmit, isUploading, error, isAuthenticated, onLoginRequest }: UploadViewProps) => {
+    const [youtubeUrl, setYoutubeUrl] = useState('');
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (!isAuthenticated) {
             onLoginRequest();
@@ -39,6 +41,17 @@ export const UploadView = ({ onUpload, isUploading, error, isAuthenticated, onLo
             onLoginRequest();
         } else {
             open();
+        }
+    };
+
+    const handleYoutubeSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!isAuthenticated) {
+            onLoginRequest();
+            return;
+        }
+        if (youtubeUrl.trim()) {
+            onYoutubeUrlSubmit(youtubeUrl.trim());
         }
     };
 
@@ -84,6 +97,45 @@ export const UploadView = ({ onUpload, isUploading, error, isAuthenticated, onLo
                             </p>
                         </div>
                     </div>
+                </div>
+
+                <div className="flex items-center gap-4 my-8">
+                    <div className="flex-1 h-px bg-gray-800" />
+                    <span className="text-gray-500 font-medium text-sm">OR</span>
+                    <div className="flex-1 h-px bg-gray-800" />
+                </div>
+
+                {/* YouTube Input Container */}
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition-all">
+                    <form onSubmit={handleYoutubeSubmit} className="space-y-4">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
+                                <Youtube className="w-5 h-5" />
+                            </div>
+                            <h3 className="font-semibold text-gray-200">Process YouTube URL</h3>
+                        </div>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={youtubeUrl}
+                                onChange={(e) => setYoutubeUrl(e.target.value)}
+                                placeholder="Paste link: https://youtube.com/watch?v=..."
+                                className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-3 text-gray-200 focus:outline-none focus:border-cyan-500 transition-all placeholder:text-gray-600"
+                                disabled={isUploading}
+                            />
+                            <button
+                                type="submit"
+                                disabled={isUploading || !youtubeUrl.trim()}
+                                className="bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 disabled:hover:bg-cyan-500 text-black font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 whitespace-nowrap"
+                            >
+                                <Zap className="w-4 h-4 fill-current" />
+                                Process
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-500 italic">
+                            Video will be converted to audio and separated into stems.
+                        </p>
+                    </form>
                 </div>
 
                 {/* Errors */}
