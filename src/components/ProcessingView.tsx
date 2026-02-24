@@ -11,7 +11,8 @@ interface ProcessingViewProps {
 
 export const ProcessingView = ({ status, progress, error, onRetry }: ProcessingViewProps) => {
     const steps = [
-        { id: 'uploading', label: 'Uploading file...', icon: Loader2 },
+        { id: 'uploading', label: 'Preparing task...', icon: Loader2 },
+        { id: 'downloading', label: 'Downloading YouTube audio...', icon: Loader2 },
         { id: 'pending', label: 'Queued for separation', icon: Loader2 },
         { id: 'separating', label: 'AI separating stems...', icon: Music },
         { id: 'completed', label: 'Ready to mix', icon: CheckCircle2 },

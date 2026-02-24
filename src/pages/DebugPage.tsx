@@ -105,11 +105,12 @@ export const DebugPage = () => {
 
                 {view === 'landing' && (
                     <LandingView
-                        onUpload={() => alert('Upload triggered (Mock)')}
+                        onUpload={() => { }}
+                        onYoutubeUrlSubmit={() => { }}
                         isUploading={false}
                         error={null}
-                        isAuthenticated={!!user}
-                        onLoginRequest={() => alert('Login requested')}
+                        isAuthenticated={true}
+                        onLoginRequest={() => { }}
                     />
                 )}
 

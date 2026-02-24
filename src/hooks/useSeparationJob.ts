@@ -23,6 +23,15 @@ export const useSeparationJob = () => {
         },
     });
 
+    // 1b. YouTube Mutation
+    const youtubeMutation = useMutation({
+        mutationFn: (url: string) => api.processYoutube(url),
+        onSuccess: (data: ProcessResponse) => {
+            handleSetJobId(data.job_id);
+            queryClient.invalidateQueries({ queryKey: ['jobStatus', data.job_id] });
+        },
+    });
+
     // 2. Poll Status
     const statusQuery = useQuery({
         queryKey: ['jobStatus', jobId],
@@ -47,8 +56,9 @@ export const useSeparationJob = () => {
     const reset = useCallback(() => {
         handleSetJobId(null);
         uploadMutation.reset();
+        youtubeMutation.reset();
         // optionally clear React Query cache for this job if we want a fresh start
-    }, [uploadMutation, handleSetJobId]);
+    }, [uploadMutation, youtubeMutation, handleSetJobId]);
 
     // Determine effective status: if we have a jobId but no status data yet, show 'pending' not 'idle'
     const effectiveStatus = (() => {
@@ -65,8 +75,9 @@ export const useSeparationJob = () => {
     return {
         jobId,
         upload: uploadMutation.mutate,
-        isUploading: uploadMutation.isPending,
-        uploadError: uploadMutation.error,
+        processYoutube: youtubeMutation.mutate,
+        isUploading: uploadMutation.isPending || youtubeMutation.isPending,
+        uploadError: uploadMutation.error || youtubeMutation.error,
         status: effectiveStatus,
         statusError: statusQuery.error,
         progress: statusQuery.data?.status === 'separating' ? 50 : 0, // Mock progress if backend doesn't provide %

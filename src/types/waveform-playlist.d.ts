@@ -12,6 +12,13 @@ declare module 'waveform-playlist' {
         controls?: {
             show?: boolean;
             width?: number;
+            widgets?: {
+                muteOrSolo?: boolean;
+                volume?: boolean;
+                stereoPan?: boolean;
+                collapse?: boolean;
+                remove?: boolean;
+            };
         };
         isAutomaticScroll?: boolean;
         timescale?: boolean;

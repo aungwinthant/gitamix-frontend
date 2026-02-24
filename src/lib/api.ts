@@ -109,6 +109,19 @@ export const api = {
         return response.data;
     },
 
+    processYoutube: async (url: string, stemMode: 'htdemucs' | 'htdemucs_6s' | 'two-stems' = 'htdemucs_6s'): Promise<ProcessResponse> => {
+        const formData = new FormData();
+        formData.append('youtube_url', url);
+        formData.append('stem_mode', stemMode);
+
+        const response = await client.post<ProcessResponse>('/process', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
     getJobStatus: async (jobId: string): Promise<JobStatusResponse> => {
         const response = await client.get<JobStatusResponse>(`/jobs/${jobId}`);
         return response.data;
