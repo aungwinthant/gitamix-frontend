@@ -23,7 +23,6 @@ function Home() {
   const {
     jobId,
     upload,
-    processYoutube,
     isUploading,
     uploadError,
     status,
@@ -74,7 +73,6 @@ function Home() {
         {showUpload && (
           <LandingView
             onUpload={upload}
-            onYoutubeUrlSubmit={processYoutube}
             isUploading={isUploading}
             error={uploadError}
             isAuthenticated={isAuthenticated}

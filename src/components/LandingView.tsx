@@ -3,7 +3,6 @@ import { Music, Mic2, Layers, Zap, CheckCircle2, ArrowRight } from 'lucide-react
 
 interface LandingViewProps {
     onUpload: (file: File) => void;
-    onYoutubeUrlSubmit: (url: string) => void;
     isUploading: boolean;
     error: Error | null;
     isAuthenticated: boolean;
