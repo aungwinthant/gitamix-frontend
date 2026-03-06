@@ -106,7 +106,6 @@ export const DebugPage = () => {
                 {view === 'landing' && (
                     <LandingView
                         onUpload={() => { }}
-                        onYoutubeUrlSubmit={() => { }}
                         isUploading={false}
                         error={null}
                         isAuthenticated={true}
